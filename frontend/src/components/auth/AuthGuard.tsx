@@ -98,11 +98,10 @@ export default function AuthGuard({
   const cachedLocal = useMemo(() => {
     if (typeof window !== 'undefined') {
       const cachedPages = localStorage.getItem('authVerifiedPages');
-      if (cachedPages) {
-        try {
+      if (cachedPages) {      try {
           const pages = JSON.parse(cachedPages);
           return pages.includes(pathname);
-        } catch (e) {
+        } catch {
           return false;
         }
       }

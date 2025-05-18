@@ -1,10 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
 import api from '@/services/api';
 import axios from 'axios';
-import { UserData } from '@/services/auth.service';
 
 interface User {
   id: string;
@@ -49,12 +47,12 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+export function AuthProvider({ children }: AuthProviderProps) {  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const router = useRouter();
+  // Router might be needed in future iterations
+  // const router = useRouter();
 
   // Verificar se o usuário está logado ao carregar a página
   useEffect(() => {
@@ -118,12 +116,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
               } else {
                 console.error('AuthContext - Invalid user data format:', response.data);
                 throw new Error('Formato de dados inválido recebido do servidor');
-              }
-            } catch (apiError: any) {
+              }            } catch (error: unknown) {
+              const apiError = error as { code?: string; message?: string };
               console.error('AuthContext - Error fetching user data:', apiError);
               
               // Verificar se é um erro de timeout ou de conexão
-              if (axios.isCancel(apiError) || apiError.code === 'ERR_NETWORK') {
+              if (axios.isCancel(error) || apiError.code === 'ERR_NETWORK') {
                 console.error('AuthContext - Network error or timeout:', apiError.message);
                 
                 // Verificar se existe um usuário em modo de desenvolvimento para testes de UI
@@ -159,8 +157,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         } else {
           console.log('AuthContext - Running in server environment, skipping auth check');
-        }
-      } catch (error: any) {
+        }      } catch (err: unknown) {
+        const error = err as { code?: string; response?: { status?: number } };
         console.error('AuthContext - Error loading user:', error);
         
         // Verificar se é um erro de conexão
@@ -183,9 +181,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('AuthContext - Finished loading user, setting isLoading to false');
         setIsLoading(false);
       }
-    };
-
-    loadUser();
+    };    loadUser();
+    // No dependencies needed as this should only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Função para atualizar os dados do usuário no contexto
@@ -212,8 +210,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setUser(response.data.data.user);
       setIsAuthenticated(true);
-      return response.data.data.user;
-    } catch (error: any) {
+      return response.data.data.user;    } catch (err: unknown) {
+      const error = err as { code?: string; response?: { status?: number }; message?: string };
       console.error('AuthContext - Error refreshing user data:', error);
       
       // Verificar se é um erro de conexão
@@ -271,8 +269,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error('Dados de usuário ausentes na resposta');
       }
       
-      return response.data;
-    } catch (error: any) {
+      return response.data;    } catch (err: unknown) {
+      const error = err as { code?: string; response?: { status?: number }; message?: string };
       console.error('AuthContext - Login error:', error);
       
       // Verificar se é um erro de conexão
@@ -307,8 +305,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       setUser(response.data.data.user);
       setIsAuthenticated(true);
-      return response.data;
-    } catch (error: any) {
+      return response.data;    } catch (err: unknown) {
+      const error = err as { code?: string; response?: { status?: number }; message?: string };
       console.error('AuthContext - Registration error:', error);
       
       // Verificar se é um erro de conexão

@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
-import { BsBox2, BsStarFill, BsGrid, BsLightningCharge, BsShieldCheck } from 'react-icons/bs';
+import { BsStarFill, BsLightningCharge, BsShieldCheck } from 'react-icons/bs';
 import { FaTruck, FaPercent, FaRegClock } from 'react-icons/fa';
-import { MdRestaurant, MdKitchen, MdOutlineRestaurant } from 'react-icons/md';
+import { MdKitchen } from 'react-icons/md';
 import api from '@/services/api';
 
 // Importar componentes do arquivo de índice
@@ -114,23 +114,6 @@ const sortOptions = [
   { value: 'rating', label: 'Melhor avaliados' },
 ];
 
-// Produtos simulados
-const mockProducts: Product[] = Array.from({ length: 16 }).map((_, i) => ({
-  id: `prod-${i + 1}`,
-  name: `Equipamento para Restaurante ${i + 1} - Modelo Profissional`,
-  image: `https://placehold.co/400x300?text=Produto+${i + 1}`,
-  price: Math.round((500 + Math.random() * 4500) * 100) / 100,
-  oldPrice: Math.random() > 0.5 ? Math.round((700 + Math.random() * 5000) * 100) / 100 : undefined,
-  rating: Math.round((3 + Math.random() * 2) * 10) / 10,
-  reviewCount: Math.floor(Math.random() * 100) + 1,
-  category: ['Fogões', 'Fornos', 'Refrigeradores', 'Liquidificadores'][Math.floor(Math.random() * 4)],
-  brand: ['Tramontina', 'Consul', 'Brastemp', 'Electrolux'][Math.floor(Math.random() * 4)],
-  inStock: Math.random() > 0.2,
-  freeShipping: Math.random() > 0.5,
-  featuredLabel: Math.random() > 0.8 ? 'Destaque' : undefined,
-  isNew: Math.random() > 0.7,
-}));
-
 export default function ProductsPage() {
   // Estados
   const [searchQuery, setSearchQuery] = useState('');
@@ -154,9 +137,9 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       setLoading(true);
       setError(undefined);
-      try {
+    try {
         // Montar parâmetros de busca/filtro
-        const params: any = {};
+        const params: Record<string, string | number> = {};
         if (searchQuery) params.search = searchQuery;
         // Filtros rápidos e laterais (exemplo simplificado)
         if (activeFilters.category && activeFilters.category.length > 0) {
@@ -183,16 +166,13 @@ export default function ProductsPage() {
         }
         // Chamada à API pública
         const response = await api.get('/products/public', { params });
-        setProducts(response.data.data || []);
-      } catch (err: any) {
+        setProducts(response.data.data || []);      } catch {
         setError('Erro ao carregar produtos. Tente novamente.');
         setProducts([]);
       } finally {
         setLoading(false);
       }
-    };
-    fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    };    fetchProducts();
   }, [searchQuery, activeFilters, activePriceRanges, currentSort]);
 
   // Gerenciar filtros

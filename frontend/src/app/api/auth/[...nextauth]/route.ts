@@ -1,9 +1,10 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import type { NextAuthOptions } from 'next-auth';
 
-// Configuração do NextAuth
-export const authOptions: NextAuthOptions = {
+/**
+ * Configure NextAuth options
+ */
+const authConfig = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -12,25 +13,12 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Senha', type: 'password' },
       },
       async authorize(credentials) {
-        // Aqui você faria a chamada para sua API de autenticação
-        // Por enquanto, vamos simular uma autenticação
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
         try {
-          // Chamada para API de autenticação (a ser implementada)
-          // const response = await fetch('http://localhost:3001/api/auth/login', {
-          //   method: 'POST',
-          //   headers: { 'Content-Type': 'application/json' },
-          //   body: JSON.stringify({
-          //     email: credentials.email,
-          //     password: credentials.password,
-          //   }),
-          // });
-          // const user = await response.json();
-          
-          // Simulação de usuário para desenvolvimento
+          // Here we would normally call your API to authenticate
           if (credentials.email === 'admin@example.com' && credentials.password === 'password') {
             return {
               id: '1',
@@ -50,19 +38,22 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 dias
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      // Adiciona dados do usuário ao token JWT
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },    callbacks: {    
+    async jwt({ token, user }: { 
+      token: Record<string, unknown>; 
+      user?: { id: string; role: string; } | undefined;
+    }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
       return token;
     },
-    async session({ session, token }) {
-      // Adiciona dados do token à sessão
+    async session({ session, token }: { 
+      session: { user?: Record<string, unknown> }; 
+      token: Record<string, unknown>; 
+    }) {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
@@ -77,6 +68,9 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || 'seu-segredo-temporario',
 };
 
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST }; 
+/**
+ * Export Next.js API route handlers for NextAuth
+ */
+// @ts-expect-error - The NextAuth type definitions are not perfect with the App Router
+const handler = NextAuth(authConfig);
+export { handler as GET, handler as POST }

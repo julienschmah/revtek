@@ -39,9 +39,10 @@ export default function RegisterPage() {
       return;
     }
 
-    try {
+  try {
       await register(name, email, password);
-    } catch (err) {
+    } catch {
+      // Error is handled through connectionError state in AuthContext
     } finally {
       setIsLoading(false);
     }

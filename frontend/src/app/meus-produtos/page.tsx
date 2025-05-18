@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -26,7 +25,6 @@ type SortField = 'name' | 'price' | 'stock' | 'salesCount' | 'createdAt';
 type SortDirection = 'asc' | 'desc';
 
 export default function MyProductsPage() {
-  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -34,35 +32,36 @@ export default function MyProductsPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const isFirstLoad = useRef(true);
-
   // Buscar produtos reais do usuário autenticado
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const params: any = {};
+      const params: Record<string, string> = {};
       if (searchTerm) params.search = searchTerm;
       if (selectedStatus !== 'all') params.status = selectedStatus;
       const response = await api.get('/products', { params });
       setProducts(response.data.data || []);
-    } catch (error) {
+    } catch {
+      // Error handled by setting empty products
       setProducts([]);
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [searchTerm, selectedStatus]);
   useEffect(() => {
     loadProducts();
-  }, [searchTerm, selectedStatus]);
+  }, [searchTerm, selectedStatus, loadProducts]);
 
   useEffect(() => {
     // Atualizar ao focar a página (ex: após cadastro)
     const handleFocus = () => {
       if (!isFirstLoad.current) {
         loadProducts();
+      } else {
+        isFirstLoad.current = false;
       }
-      isFirstLoad.current = false;
     };
+    
     window.addEventListener('focus', handleFocus);
     // Opcional: ouvir evento global
     // window.addEventListener('refreshMyProducts', loadProducts);
@@ -70,7 +69,7 @@ export default function MyProductsPage() {
       window.removeEventListener('focus', handleFocus);
       // window.removeEventListener('refreshMyProducts', loadProducts);
     };
-  }, []);
+  }, [loadProducts]);
 
   // Filtrar produtos
   const filteredProducts = products.filter(product => {

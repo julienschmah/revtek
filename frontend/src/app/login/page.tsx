@@ -29,28 +29,25 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    
-    try {
+      try {
       const response = await login(email, password);
       console.log('Login bem sucedido, redirecionando...', response);
       
       // Usar router.push em vez de window.location para evitar refresh completo
       router.push('/landingpage');
-    } catch (err: any) {
-      console.error('Erro ao fazer login:', err);
+    } catch (error: unknown) {
+      console.error('Erro ao fazer login:', error);
       // O erro já foi tratado no AuthContext e definido em connectionError
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleRetry = async () => {
     setIsRefreshing(true);
     setError('');
-    
-    try {
+      try {
       await refreshUserData();
-    } catch (err) {
+    } catch {
       // Erro já tratado no AuthContext
     } finally {
       setIsRefreshing(false);

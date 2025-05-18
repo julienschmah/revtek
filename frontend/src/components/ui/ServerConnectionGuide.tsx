@@ -48,10 +48,9 @@ export default function ServerConnectionGuide({ className = '' }: ServerConnecti
             <div className="flex items-center mb-2">
               <FaWindows className="mr-2" />
               <span className="text-zinc-400">Windows PowerShell: Iniciar o servidor backend</span>
-            </div>
-            <ol className="space-y-2 text-zinc-300">
-              <li><span className="text-amber-400">PS></span> cd ..\backend</li>
-              <li><span className="text-amber-400">PS></span> npm run dev</li>
+            </div>            <ol className="space-y-2 text-zinc-300">
+              <li><span className="text-amber-400">PS&gt;</span> cd ..\backend</li>
+              <li><span className="text-amber-400">PS&gt;</span> npm run dev</li>
             </ol>
           </div>
           
@@ -85,9 +84,8 @@ export default function ServerConnectionGuide({ className = '' }: ServerConnecti
               <strong>Nota:</strong> Certifique-se de que o servidor backend esteja configurado corretamente e que todas as dependências estejam instaladas. Se for a primeira vez executando o servidor, você pode precisar executar <code className="bg-yellow-100 px-1 py-0.5 rounded">npm install</code> primeiro.
             </p>
           </div>
-          
-          <p className="mt-4 text-sm text-zinc-700">
-            Após iniciar o servidor, clique no botão "Tentar novamente" para verificar a conexão.
+            <p className="mt-4 text-sm text-zinc-700">
+            Após iniciar o servidor, clique no botão &quot;Tentar novamente&quot; para verificar a conexão.
           </p>
         </div>
       )}

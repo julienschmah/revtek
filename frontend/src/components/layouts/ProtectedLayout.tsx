@@ -2,9 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { FaSearch, FaBell, FaShoppingCart, FaUserCircle, FaHeart, FaList, FaSignOutAlt, FaTags, FaMapMarkerAlt } from 'react-icons/fa';
-import InputMask from 'react-input-mask';
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -13,7 +11,6 @@ interface ProtectedLayoutProps {
 
 export default function ProtectedLayout({
   children,
-  allowedRoles = [],
 }: ProtectedLayoutProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);

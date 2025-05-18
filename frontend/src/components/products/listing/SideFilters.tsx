@@ -145,16 +145,14 @@ export const SideFilters: React.FC<SideFiltersProps> = ({
                       </div>
                     ))}
                   </div>
-                )}
-
-                {group.type === 'range' && group.priceRange && (
+                )}                {group.type === 'range' && group.priceRange && (
                   <div className="space-y-4 mt-2">
                     <div className="flex justify-between text-sm text-gray-500">
                       <span>
-                        {formatPrice(activePriceRanges[group.id]?.min || group.priceRange.min)}
+                        {formatPrice(activePriceRanges[group.id]?.min ?? group.priceRange.min)}
                       </span>
                       <span>
-                        {formatPrice(activePriceRanges[group.id]?.max || group.priceRange.max)}
+                        {formatPrice(activePriceRanges[group.id]?.max ?? group.priceRange.max)}
                       </span>
                     </div>
 
@@ -163,14 +161,16 @@ export const SideFilters: React.FC<SideFiltersProps> = ({
                         type="range"
                         min={group.priceRange.min}
                         max={group.priceRange.max}
-                        value={activePriceRanges[group.id]?.min || group.priceRange.min}
-                        onChange={(e) =>
-                          onPriceRangeChange(group.id, {
-                            min: parseInt(e.target.value),
-                            max:
-                              activePriceRanges[group.id]?.max || group.priceRange.max,
-                          })
-                        }
+                        value={activePriceRanges[group.id]?.min ?? group.priceRange.min}
+                        onChange={(e) => {
+                          if (group.priceRange) {
+                            onPriceRangeChange(group.id, {
+                              min: parseInt(e.target.value),
+                              max:
+                                activePriceRanges[group.id]?.max ?? group.priceRange.max,
+                            })
+                          }
+                        }}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
                       />
                     </div>
@@ -180,48 +180,53 @@ export const SideFilters: React.FC<SideFiltersProps> = ({
                         type="range"
                         min={group.priceRange.min}
                         max={group.priceRange.max}
-                        value={activePriceRanges[group.id]?.max || group.priceRange.max}
-                        onChange={(e) =>
-                          onPriceRangeChange(group.id, {
-                            min:
-                              activePriceRanges[group.id]?.min || group.priceRange.min,
-                            max: parseInt(e.target.value),
-                          })
-                        }
+                        value={activePriceRanges[group.id]?.max ?? group.priceRange.max}
+                        onChange={(e) => {
+                          if (group.priceRange) {
+                            onPriceRangeChange(group.id, {
+                              min:
+                                activePriceRanges[group.id]?.min ?? group.priceRange.min,
+                              max: parseInt(e.target.value),
+                            })
+                          }
+                        }}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
                       />
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                      <input
+                    <div className="flex items-center space-x-2">                      <input
                         type="number"
                         placeholder="Min"
-                        min={group.priceRange.min}
-                        max={group.priceRange.max}
+                        min={group.priceRange?.min}
+                        max={group.priceRange?.max}
                         value={activePriceRanges[group.id]?.min || ''}
-                        onChange={(e) =>
-                          onPriceRangeChange(group.id, {
-                            min: parseInt(e.target.value) || group.priceRange.min,
-                            max:
-                              activePriceRanges[group.id]?.max || group.priceRange.max,
-                          })
-                        }
+                        onChange={(e) => {
+                          if (group.priceRange) {
+                            onPriceRangeChange(group.id, {
+                              min: parseInt(e.target.value) || group.priceRange.min,
+                              max:
+                                activePriceRanges[group.id]?.max ?? group.priceRange.max,
+                            })
+                          }
+                        }}
                         className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                       />
                       <span className="text-gray-500">-</span>
                       <input
                         type="number"
                         placeholder="Max"
-                        min={group.priceRange.min}
-                        max={group.priceRange.max}
+                        min={group.priceRange?.min}
+                        max={group.priceRange?.max}
                         value={activePriceRanges[group.id]?.max || ''}
-                        onChange={(e) =>
-                          onPriceRangeChange(group.id, {
-                            min:
-                              activePriceRanges[group.id]?.min || group.priceRange.min,
-                            max: parseInt(e.target.value) || group.priceRange.max,
-                          })
-                        }
+                        onChange={(e) => {
+                          if (group.priceRange) {
+                            onPriceRangeChange(group.id, {
+                              min:
+                                activePriceRanges[group.id]?.min ?? group.priceRange.min,
+                              max: parseInt(e.target.value) || group.priceRange.max,
+                            })
+                          }
+                        }}
                         className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
                       />
                     </div>

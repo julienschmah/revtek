@@ -2,6 +2,7 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import { BsFillGridFill, BsList } from 'react-icons/bs';
 import { BiLoader } from 'react-icons/bi';
+import Image from 'next/image';
 
 interface Product {
   id: string;
@@ -110,13 +111,14 @@ export const ProductList: React.FC<ProductListProps> = ({
           >
             {viewType === 'list' ? (
               <div className="flex bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 overflow-hidden">
-                <div className="relative w-1/4 min-w-[150px]">
-                  <div className="relative w-full h-full min-h-[200px]">
+                <div className="relative w-1/4 min-w-[150px]">                  <div className="relative w-full h-full min-h-[200px]">
                     {product.image && (
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-contain"
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     )}
                   </div>
