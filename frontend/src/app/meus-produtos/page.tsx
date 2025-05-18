@@ -1,71 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaTimes, FaEye, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { BiLoader } from 'react-icons/bi';
-
-// Dados simulados para produtos do vendedor
-const mockProducts = [
-  {
-    id: '1',
-    name: 'Fogão Industrial 6 Bocas de Alta Pressão',
-    price: 1899.90,
-    image: '/images/restaurante.png',
-    category: 'Fogões',
-    stock: 12,
-    status: 'active',
-    salesCount: 8,
-    createdAt: '2023-10-15',
-  },
-  {
-    id: '2',
-    name: 'Fritadeira Elétrica Comercial 10L Inox',
-    price: 699.90,
-    image: '/images/restaurante.png',
-    category: 'Fritadeiras',
-    stock: 5,
-    status: 'active',
-    salesCount: 15,
-    createdAt: '2023-11-02',
-  },
-  {
-    id: '3',
-    name: 'Refrigerador Comercial 4 Portas Inox 1000L',
-    price: 5699.90,
-    image: '/images/restaurante.png',
-    category: 'Refrigeração',
-    stock: 3,
-    status: 'active',
-    salesCount: 2,
-    createdAt: '2023-12-10',
-  },
-  {
-    id: '4',
-    name: 'Liquidificador Industrial 8L Alta Rotação',
-    price: 549.90,
-    image: '/images/restaurante.png',
-    category: 'Preparação',
-    stock: 0,
-    status: 'inactive',
-    salesCount: 0,
-    createdAt: '2024-01-05',
-  },
-  {
-    id: '5',
-    name: 'Chapa para Lanches a Gás 80cm',
-    price: 899.90,
-    image: '/images/restaurante.png',
-    category: 'Chapas',
-    stock: 2,
-    status: 'active',
-    salesCount: 4,
-    createdAt: '2024-02-18',
-  },
-];
+import api from '@/services/api';
 
 // Tipos
 interface Product {
@@ -91,19 +33,43 @@ export default function MyProductsPage() {
   const [sortField, setSortField] = useState<SortField>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const isFirstLoad = useRef(true);
+
+  // Buscar produtos reais do usuário autenticado
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const params: any = {};
+      if (searchTerm) params.search = searchTerm;
+      if (selectedStatus !== 'all') params.status = selectedStatus;
+      const response = await api.get('/products', { params });
+      setProducts(response.data.data || []);
+    } catch (error) {
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Simular carregamento de API
-    const loadProducts = async () => {
-      setLoading(true);
-      // Em uma implementação real, você faria uma chamada à API aqui
-      setTimeout(() => {
-        setProducts(mockProducts);
-        setLoading(false);
-      }, 800);
-    };
-
     loadProducts();
+  }, [searchTerm, selectedStatus]);
+
+  useEffect(() => {
+    // Atualizar ao focar a página (ex: após cadastro)
+    const handleFocus = () => {
+      if (!isFirstLoad.current) {
+        loadProducts();
+      }
+      isFirstLoad.current = false;
+    };
+    window.addEventListener('focus', handleFocus);
+    // Opcional: ouvir evento global
+    // window.addEventListener('refreshMyProducts', loadProducts);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      // window.removeEventListener('refreshMyProducts', loadProducts);
+    };
   }, []);
 
   // Filtrar produtos
@@ -394,4 +360,4 @@ export default function MyProductsPage() {
       </div>
     </ProtectedLayout>
   );
-} 
+}

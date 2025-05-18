@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
-import { FaUpload, FaTag, FaBoxOpen, FaDollarSign, FaInfoCircle } from 'react-icons/fa';
+import { FaUpload, FaTag, FaBoxOpen, FaDollarSign, FaInfoCircle, FaCheckCircle, FaChevronRight, FaChevronLeft, FaCamera } from 'react-icons/fa';
 import Link from 'next/link';
+import { IMaskInput } from 'react-imask';
 
 export default function AnunciarPage() {
   const { user } = useAuth();
@@ -16,8 +17,31 @@ export default function AnunciarPage() {
     quantidade: '',
     descricao: '',
     especificacoes: '',
-    fotos: [] as File[]
+    fotos: [] as File[],
   });
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [errors, setErrors] = useState<{[key:string]: string}>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Validação simples
+  const validateStep = (step: number) => {
+    const newErrors: {[key:string]: string} = {};
+    if (step === 1) {
+      if (!formData.titulo) newErrors.titulo = 'Título obrigatório';
+      if (!formData.categoria) newErrors.categoria = 'Selecione uma categoria';
+      if (!formData.preco) newErrors.preco = 'Informe o preço';
+      if (!formData.quantidade) newErrors.quantidade = 'Informe a quantidade';
+    }
+    if (step === 2) {
+      if (!formData.descricao) newErrors.descricao = 'Descrição obrigatória';
+    }
+    if (step === 3) {
+      if (formData.fotos.length === 0) newErrors.fotos = 'Adicione pelo menos uma foto';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -29,100 +53,127 @@ export default function AnunciarPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
+      const filesArray = Array.from(e.target.files).slice(0, 5 - formData.fotos.length);
       setFormData(prev => ({
         ...prev,
-        fotos: [...prev.fotos, ...filesArray]
+        fotos: [...prev.fotos, ...filesArray],
       }));
+      // Previews
+      const newPreviews = filesArray.map(file => URL.createObjectURL(file));
+      setPreviewUrls(prev => [...prev, ...newPreviews]);
     }
+  };
+
+  // Drag and drop
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.dataTransfer.files) {
+      const filesArray = Array.from(e.dataTransfer.files).slice(0, 5 - formData.fotos.length);
+      setFormData(prev => ({
+        ...prev,
+        fotos: [...prev.fotos, ...filesArray],
+      }));
+      const newPreviews = filesArray.map(file => URL.createObjectURL(file));
+      setPreviewUrls(prev => [...prev, ...newPreviews]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
   };
 
   const removeFile = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      fotos: prev.fotos.filter((_, i) => i !== index)
+      fotos: prev.fotos.filter((_, i) => i !== index),
     }));
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const goToStep = (step: number) => {
+    if (step > formStep && !validateStep(formStep)) return;
     setFormStep(step);
     window.scrollTo(0, 0);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementar lógica para enviar o anúncio
-    alert("Anúncio enviado com sucesso! Em breve estará disponível no marketplace.");
+    if (!validateStep(3)) return;
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+    // Aqui você pode enviar os dados para a API
   };
 
   return (
     <ProtectedLayout>
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
-        {/* Cabeçalho da página */}
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-8 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-          
-          <div className="relative">
-            <h1 className="text-3xl font-bold mb-2">Anunciar Produto</h1>
-            <p className="text-amber-100">Anuncie seus equipamentos para restaurantes e alcance milhares de compradores.</p>
-          </div>
-        </div>
-        
-        {/* Progresso do formulário */}
-        <div className="px-6 pt-6">
-          <div className="flex mb-8">
-            <div className={`flex-1 flex flex-col items-center ${formStep >= 1 ? 'text-amber-600' : 'text-gray-400'}`}>
-              <div className={`rounded-full w-8 h-8 flex items-center justify-center border-2 ${formStep >= 1 ? 'border-amber-600 bg-amber-100' : 'border-gray-300'}`}>
-                1
-              </div>
-              <span className="text-xs mt-1">Informações Básicas</span>
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden my-4 sm:my-8 p-0 sm:p-0">
+        {/* Cabeçalho visual com ícones de etapas */}
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-6 sm:px-6 sm:py-8 text-white relative overflow-hidden">
+          <div className="flex justify-between items-center max-w-md mx-auto">
+            <div className="flex flex-col items-center flex-1">
+              <div className={`rounded-full w-10 h-10 flex items-center justify-center border-2 ${formStep>=1?'border-white bg-amber-100 text-amber-700':'border-white/40 bg-white/20 text-white/70'}`}>1</div>
+              <span className="text-xs mt-1 font-medium">Básico</span>
             </div>
-            <div className={`flex-1 h-0.5 self-center ${formStep >= 2 ? 'bg-amber-500' : 'bg-gray-200'}`}></div>
-            <div className={`flex-1 flex flex-col items-center ${formStep >= 2 ? 'text-amber-600' : 'text-gray-400'}`}>
-              <div className={`rounded-full w-8 h-8 flex items-center justify-center border-2 ${formStep >= 2 ? 'border-amber-600 bg-amber-100' : 'border-gray-300'}`}>
-                2
-              </div>
-              <span className="text-xs mt-1">Descrição e Detalhes</span>
+            <FaChevronRight className={`mx-1 sm:mx-2 text-lg ${formStep>=2?'text-white':'text-white/40'}`} />
+            <div className="flex flex-col items-center flex-1">
+              <div className={`rounded-full w-10 h-10 flex items-center justify-center border-2 ${formStep>=2?'border-white bg-amber-100 text-amber-700':'border-white/40 bg-white/20 text-white/70'}`}>2</div>
+              <span className="text-xs mt-1 font-medium">Detalhes</span>
             </div>
-            <div className={`flex-1 h-0.5 self-center ${formStep >= 3 ? 'bg-amber-500' : 'bg-gray-200'}`}></div>
-            <div className={`flex-1 flex flex-col items-center ${formStep >= 3 ? 'text-amber-600' : 'text-gray-400'}`}>
-              <div className={`rounded-full w-8 h-8 flex items-center justify-center border-2 ${formStep >= 3 ? 'border-amber-600 bg-amber-100' : 'border-gray-300'}`}>
-                3
-              </div>
-              <span className="text-xs mt-1">Fotos do Produto</span>
+            <FaChevronRight className={`mx-1 sm:mx-2 text-lg ${formStep>=3?'text-white':'text-white/40'}`} />
+            <div className="flex flex-col items-center flex-1">
+              <div className={`rounded-full w-10 h-10 flex items-center justify-center border-2 ${formStep>=3?'border-white bg-amber-100 text-amber-700':'border-white/40 bg-white/20 text-white/70'}`}>3</div>
+              <span className="text-xs mt-1 font-medium">Fotos</span>
+            </div>
+            <FaChevronRight className={`mx-1 sm:mx-2 text-lg ${formStep>=4?'text-white':'text-white/40'}`} />
+            <div className="flex flex-col items-center flex-1">
+              <div className={`rounded-full w-10 h-10 flex items-center justify-center border-2 ${formStep>=4?'border-white bg-amber-100 text-amber-700':'border-white/40 bg-white/20 text-white/70'}`}>4</div>
+              <span className="text-xs mt-1 font-medium">Revisão</span>
             </div>
           </div>
         </div>
-        
-        {/* Formulário de anúncio */}
-        <form onSubmit={handleSubmit} className="p-6">
+
+        {/* Modal de sucesso */}
+        {showSuccess && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center max-w-xs w-full">
+              <FaCheckCircle className="text-4xl text-amber-500 mb-2" />
+              <h2 className="text-lg font-bold mb-1 text-gray-800">Anúncio enviado!</h2>
+              <p className="text-gray-600 text-center mb-4">Seu anúncio foi enviado com sucesso e será revisado pela equipe RevMak.</p>
+              <button onClick={()=>setShowSuccess(false)} className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">Fechar</button>
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
           {/* Etapa 1: Informações Básicas */}
           {formStep === 1 && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Título do Anúncio*
+                  <span className="ml-1 text-xs text-gray-400" title="Seja claro e objetivo">?</span>
                 </label>
                 <input
                   type="text"
                   name="titulo"
                   value={formData.titulo}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className={`w-full px-4 py-2 rounded-lg border ${errors.titulo?'border-red-400':'border-gray-300'} focus:ring-2 focus:ring-amber-500 focus:border-transparent`}
                   placeholder="Ex: Fogão Industrial 6 Bocas de Alta Pressão"
                   required
                 />
+                {errors.titulo && <span className="text-xs text-red-500">{errors.titulo}</span>}
               </div>
-              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Categoria*
+                  <span className="ml-1 text-xs text-gray-400" title="Escolha a categoria mais adequada">?</span>
                 </label>
                 <select
                   name="categoria"
                   value={formData.categoria}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className={`w-full px-4 py-2 rounded-lg border ${errors.categoria?'border-red-400':'border-gray-300'} focus:ring-2 focus:ring-amber-500 focus:border-transparent`}
                   required
                 >
                   <option value="">Selecione uma categoria</option>
@@ -132,85 +183,106 @@ export default function AnunciarPage() {
                   <option value="chapas">Chapas e Fritadeiras</option>
                   <option value="liquidificadores">Liquidificadores</option>
                   <option value="utensilios">Utensílios</option>
+                  <option value="outros">Outros</option>
                 </select>
+                {errors.categoria && <span className="text-xs text-red-500">{errors.categoria}</span>}
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                     Preço (R$)*
+                    <span className="ml-1 text-xs text-gray-400" title="Informe o valor do produto">?</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <FaDollarSign className="text-gray-400" />
                     </div>
-                    <input
+                    <IMaskInput
+                      mask="num"
+                      blocks={{
+                        num: {
+                          mask: Number,
+                          thousandsSeparator: '.',
+                          radix: ',',
+                          mapToRadix: [','],
+                          min: 0.01,
+                          max: 999999999.99,
+                          scale: 2,
+                          padFractionalZeros: false,
+                          normalizeZeros: true,
+                        },
+                      }}
+                      value={formData.preco}
+                      onAccept={(value) => setFormData(prev => ({ ...prev, preco: value }))}
                       type="text"
                       name="preco"
-                      value={formData.preco}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      className={`w-full pl-10 pr-4 py-2 rounded-lg border ${errors.preco?'border-red-400':'border-gray-300'} focus:ring-2 focus:ring-amber-500 focus:border-transparent`}
                       placeholder="0,00"
                       required
                     />
+                    {errors.preco && <span className="text-xs text-red-500 absolute left-0 -bottom-5">{errors.preco}</span>}
                   </div>
                 </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                     Quantidade Disponível*
+                    <span className="ml-1 text-xs text-gray-400" title="Quantos produtos você tem?">?</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <FaBoxOpen className="text-gray-400" />
                     </div>
-                    <input
-                      type="number"
-                      name="quantidade"
+                    <IMaskInput
+                      mask={Number}
+                      min={1}
+                      max={99999}
                       value={formData.quantidade}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      onAccept={(value) => setFormData(prev => ({ ...prev, quantidade: value }))}
+                      type="text"
+                      name="quantidade"
+                      className={`w-full pl-10 pr-4 py-2 rounded-lg border ${errors.quantidade?'border-red-400':'border-gray-300'} focus:ring-2 focus:ring-amber-500 focus:border-transparent`}
                       placeholder="1"
-                      min="1"
                       required
                     />
+                    {errors.quantidade && <span className="text-xs text-red-500 absolute left-0 -bottom-5">{errors.quantidade}</span>}
                   </div>
                 </div>
               </div>
-              
-              <div className="pt-4 flex justify-end">
+              <div className="pt-4 flex flex-col sm:flex-row justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => goToStep(2)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
                 >
-                  Continuar
+                  Continuar <FaChevronRight className="inline ml-2" />
                 </button>
               </div>
             </div>
           )}
-          
+
           {/* Etapa 2: Descrição e Detalhes */}
           {formStep === 2 && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Descrição Detalhada*
+                  <span className="ml-1 text-xs text-gray-400" title="Descreva o produto de forma completa">?</span>
                 </label>
                 <textarea
                   name="descricao"
                   value={formData.descricao}
                   onChange={handleChange}
                   rows={6}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className={`w-full px-4 py-2 rounded-lg border ${errors.descricao?'border-red-400':'border-gray-300'} focus:ring-2 focus:ring-amber-500 focus:border-transparent`}
                   placeholder="Descreva o produto em detalhes, incluindo características, benefícios, estado de conservação, etc."
                   required
                 ></textarea>
+                {errors.descricao && <span className="text-xs text-red-500">{errors.descricao}</span>}
               </div>
-              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Especificações Técnicas
+                  <span className="ml-1 text-xs text-gray-400" title="Dimensões, material, potência, etc.">?</span>
                 </label>
                 <textarea
                   name="especificacoes"
@@ -221,107 +293,146 @@ export default function AnunciarPage() {
                   placeholder="Informe as especificações técnicas do produto (dimensões, material, potência, etc.)"
                 ></textarea>
               </div>
-              
-              <div className="pt-4 flex justify-between">
+              <div className="pt-4 flex flex-col sm:flex-row justify-between gap-2">
                 <button
                   type="button"
                   onClick={() => goToStep(1)}
-                  className="border border-amber-500 text-amber-600 hover:bg-amber-50 px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="border border-amber-500 text-amber-600 hover:bg-amber-50 px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
                 >
-                  Voltar
+                  <FaChevronLeft className="inline mr-2" /> Voltar
                 </button>
-                
                 <button
                   type="button"
                   onClick={() => goToStep(3)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
                 >
-                  Continuar
+                  Continuar <FaChevronRight className="inline ml-2" />
                 </button>
               </div>
             </div>
           )}
-          
+
           {/* Etapa 3: Fotos do Produto */}
           {formStep === 3 && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
                   Fotos do Produto*
+                  <span className="ml-1 text-xs text-gray-400" title="Adicione fotos reais e de boa qualidade">?</span>
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-lg">
-                  <div className="space-y-1 text-center">
-                    <div className="flex justify-center">
-                      <FaUpload className="h-10 w-10 text-gray-400" />
-                    </div>
-                    <div className="flex text-sm text-gray-600">
-                      <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-amber-600 hover:text-amber-500">
-                        <span>Carregar arquivos</span>
-                        <input id="file-upload" name="file-upload" type="file" className="sr-only" multiple onChange={handleFileChange} />
-                      </label>
-                      <p className="pl-1">ou arraste e solte</p>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      PNG, JPG, GIF até 10MB (máx. 5 imagens)
-                    </p>
+                <div
+                  className={`mt-1 flex flex-col items-center justify-center px-4 pt-5 pb-6 border-2 border-dashed rounded-lg ${errors.fotos?'border-red-400':'border-gray-300'}`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  style={{minHeight: '120px'}}
+                >
+                  <div className="flex flex-col items-center w-full">
+                    <FaCamera className="h-10 w-10 text-gray-400 mb-2" />
+                    <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-amber-600 hover:text-amber-500 px-3 py-1 border border-amber-200 shadow-sm">
+                      <span>Carregar fotos</span>
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        className="sr-only"
+                        multiple
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                    <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF até 10MB (máx. 5 imagens)</p>
+                    <p className="text-xs text-gray-400">ou arraste e solte aqui</p>
                   </div>
-                </div>
-              </div>
-              
-              {/* Lista de arquivos selecionados */}
-              {formData.fotos.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-700">Arquivos selecionados:</h4>
-                  <ul className="mt-2 divide-y divide-gray-200 border border-gray-200 rounded-md">
-                    {formData.fotos.map((file, index) => (
-                      <li key={index} className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
-                        <div className="w-0 flex-1 flex items-center">
-                          <FaTag className="flex-shrink-0 h-5 w-5 text-gray-400" />
-                          <span className="ml-2 flex-1 w-0 truncate">{file.name}</span>
-                        </div>
-                        <div className="ml-4 flex-shrink-0">
+                  {errors.fotos && <span className="text-xs text-red-500 mt-2">{errors.fotos}</span>}
+                  {/* Prévia das imagens */}
+                  {previewUrls.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-4 w-full justify-center">
+                      {previewUrls.map((url, idx) => (
+                        <div key={idx} className="relative group">
+                          <img src={url} alt="Prévia" className="w-20 h-20 object-cover rounded-md border border-gray-200 shadow-sm" />
                           <button
                             type="button"
-                            onClick={() => removeFile(index)}
-                            className="font-medium text-red-600 hover:text-red-500"
+                            onClick={() => removeFile(idx)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow group-hover:scale-110 transition-transform"
+                            title="Remover"
                           >
-                            Remover
+                            ×
                           </button>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {/* Aviso sobre regras de anúncio */}
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <FaInfoCircle className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-amber-700">
-                      Ao publicar seu anúncio, você concorda com os <Link href="/termos" className="font-medium underline">termos e condições</Link> da RevMak. Seu anúncio será revisado antes de ser publicado.
-                    </p>
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-              
-              <div className="pt-4 flex justify-between">
+              <div className="pt-4 flex flex-col sm:flex-row justify-between gap-2">
                 <button
                   type="button"
                   onClick={() => goToStep(2)}
-                  className="border border-amber-500 text-amber-600 hover:bg-amber-50 px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="border border-amber-500 text-amber-600 hover:bg-amber-50 px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
                 >
-                  Voltar
+                  <FaChevronLeft className="inline mr-2" /> Voltar
                 </button>
-                
+                <button
+                  type="button"
+                  onClick={() => goToStep(4)}
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
+                >
+                  Revisar <FaChevronRight className="inline ml-2" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Etapa 4: Revisão */}
+          {formStep === 4 && (
+            <div className="space-y-6">
+              <h2 className="text-lg font-bold text-gray-800 mb-2">Revise seu anúncio</h2>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="mb-2">
+                  <span className="font-semibold text-gray-700">Título:</span> {formData.titulo}
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold text-gray-700">Categoria:</span> {formData.categoria}
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold text-gray-700">Preço:</span> R$ {formData.preco}
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold text-gray-700">Quantidade:</span> {formData.quantidade}
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold text-gray-700">Descrição:</span> {formData.descricao}
+                </div>
+                {formData.especificacoes && (
+                  <div className="mb-2">
+                    <span className="font-semibold text-gray-700">Especificações:</span> {formData.especificacoes}
+                  </div>
+                )}
+                {previewUrls.length > 0 && (
+                  <div className="mb-2">
+                    <span className="font-semibold text-gray-700">Fotos:</span>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {previewUrls.map((url, idx) => (
+                        <img key={idx} src={url} alt="Prévia" className="w-16 h-16 object-cover rounded-md border border-gray-200" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="pt-4 flex flex-col sm:flex-row justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => goToStep(3)}
+                  className="border border-amber-500 text-amber-600 hover:bg-amber-50 px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
+                >
+                  <FaChevronLeft className="inline mr-2" /> Voltar
+                </button>
                 <button
                   type="submit"
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-2 rounded-lg font-medium transition-colors"
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
                 >
-                  Publicar Anúncio
+                  Publicar Anúncio <FaCheckCircle className="inline ml-2" />
                 </button>
               </div>
             </div>
@@ -330,4 +441,4 @@ export default function AnunciarPage() {
       </div>
     </ProtectedLayout>
   );
-} 
+}

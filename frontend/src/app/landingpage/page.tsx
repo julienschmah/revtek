@@ -179,7 +179,7 @@ export default function LandingPage() {
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Categorias Populares</h2>
                 <p className="text-gray-500">Encontre os melhores equipamentos por categoria</p>
               </div>
-              <Link href="/categorias" className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-5 py-2.5 rounded-lg font-medium flex items-center transition-colors border border-amber-200">
+              <Link href="/produtos" className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-5 py-2.5 rounded-lg font-medium flex items-center transition-colors border border-amber-200">
                 Ver todas
                 <FaChevronRight className="ml-2" />
               </Link>
@@ -383,4 +383,4 @@ export default function LandingPage() {
       </div>
     </ProtectedLayout>
   );
-} 
+}

@@ -7,6 +7,7 @@ import { FaSave, FaArrowLeft, FaUpload, FaTrash, FaPlus } from 'react-icons/fa';
 import { BiLoader } from 'react-icons/bi';
 import Image from 'next/image';
 import Link from 'next/link';
+import api, { uploadImage } from '@/services/api';
 
 // Categorias simuladas
 const categories = [
@@ -66,6 +67,8 @@ export default function NewProductPage() {
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Lidar com mudanças em campos simples
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -77,7 +80,7 @@ export default function NewProductPage() {
       setFormData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof ProductFormData],
+          ...((prev as any)[parent]),
           [child]: value,
         }
       }));
@@ -124,14 +127,19 @@ export default function NewProductPage() {
     }));
   };
   
-  // Upload de imagem (simulado)
-  const handleImageUpload = () => {
-    // Em um cenário real, aqui teríamos uma chamada para um serviço de upload
-    // Por enquanto, apenas adicionar uma imagem simulada
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, '/images/restaurante.png']
-    }));
+  // Upload de imagem (real)
+  const handleImageUpload = async (e?: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e?.target?.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      const path = await uploadImage(file);
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, path],
+      }));
+    } catch (err) {
+      setApiError('Erro ao fazer upload da imagem.');
+    }
   };
   
   const removeImage = (index: number) => {
@@ -199,19 +207,41 @@ export default function NewProductPage() {
     }
     
     setIsSubmitting(true);
-    
+    setApiError(null);
     try {
-      // Simulando uma chamada API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Aqui enviaria os dados para a API
-      console.log('Produto enviado:', formData);
-      
-      // Redirecionar para a lista de produtos
-      router.push('/meus-produtos');
-    } catch (error) {
+      // Montar payload para API
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+        price: parseFloat(formData.price.replace(/\./g, '').replace(',', '.')),
+        stock: parseInt(formData.stock),
+        categoryId: formData.category,
+        images: formData.images,
+        isNew: formData.isNew,
+        brand: formData.brand,
+        model: formData.model,
+        warranty: formData.warranty ? parseInt(formData.warranty) : 0,
+        weight: formData.weight ? parseFloat(formData.weight.replace(',', '.')) : null,
+        width: formData.dimensions.width ? parseFloat(formData.dimensions.width.replace(',', '.')) : null,
+        height: formData.dimensions.height ? parseFloat(formData.dimensions.height.replace(',', '.')) : null,
+        depth: formData.dimensions.depth ? parseFloat(formData.dimensions.depth.replace(',', '.')) : null,
+        features: formData.features.filter(f => f.key && f.value),
+      };
+      // Chamada real à API
+      await api.post('/products', payload);
+      setShowSuccessModal(true);
+      // Opcional: notificar página de listagem para atualizar (ex: via contexto ou evento)
+      // window.dispatchEvent(new Event('refreshMyProducts'));
+      setTimeout(() => {
+        router.push('/meus-produtos');
+      }, 1200);
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setApiError(error.response.data.message);
+      } else {
+        setApiError('Ocorreu um erro ao salvar o produto. Por favor, tente novamente.');
+      }
       console.error('Erro ao enviar produto:', error);
-      alert('Ocorreu um erro ao salvar o produto. Por favor, tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -521,14 +551,11 @@ export default function NewProductPage() {
                   </div>
                 ))}
                 
-                <button 
-                  type="button"
-                  onClick={handleImageUpload}
-                  className="border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center p-4 hover:border-amber-500 transition-colors aspect-w-1 aspect-h-1"
-                >
+                <label className="border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center p-4 hover:border-amber-500 transition-colors aspect-w-1 aspect-h-1 cursor-pointer">
                   <FaUpload className="text-gray-400 mb-2" size={24} />
                   <span className="text-sm text-gray-500">Adicionar Imagem</span>
-                </button>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                </label>
               </div>
               {errors.images && <p className="mt-2 text-sm text-red-600">{errors.images}</p>}
               <p className="mt-2 text-xs text-gray-500">
@@ -566,6 +593,22 @@ export default function NewProductPage() {
           </form>
         </div>
       </div>
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center">
+            <span className="text-3xl mb-2 text-green-600">✓</span>
+            <h2 className="text-lg font-semibold mb-2">Produto cadastrado com sucesso!</h2>
+            <p className="text-gray-600 mb-4">Redirecionando para seus produtos...</p>
+            <button onClick={() => router.push('/meus-produtos')} className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md">Ver meus produtos</button>
+          </div>
+        </div>
+      )}
+      {apiError && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50">
+          <span>{apiError}</span>
+          <button className="ml-4 underline" onClick={() => setApiError(null)}>Fechar</button>
+        </div>
+      )}
     </ProtectedLayout>
   );
-} 
+}

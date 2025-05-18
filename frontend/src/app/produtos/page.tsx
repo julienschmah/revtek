@@ -5,6 +5,7 @@ import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import { BsBox2, BsStarFill, BsGrid, BsLightningCharge, BsShieldCheck } from 'react-icons/bs';
 import { FaTruck, FaPercent, FaRegClock } from 'react-icons/fa';
 import { MdRestaurant, MdKitchen, MdOutlineRestaurant } from 'react-icons/md';
+import api from '@/services/api';
 
 // Importar componentes do arquivo de índice
 import { 
@@ -148,17 +149,51 @@ export default function ProductsPage() {
     { label: 'Produtos', href: '/produtos' },
   ];
 
-  // Carregar produtos (simulado)
+  // Carregar produtos reais da API pública
   useEffect(() => {
-    // Simulando uma chamada de API
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setProducts(mockProducts);
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(undefined);
+      try {
+        // Montar parâmetros de busca/filtro
+        const params: any = {};
+        if (searchQuery) params.search = searchQuery;
+        // Filtros rápidos e laterais (exemplo simplificado)
+        if (activeFilters.category && activeFilters.category.length > 0) {
+          // Supondo que categoryId seja o slug ou id real
+          params.categoryId = activeFilters.category[0];
+        }
+        if (activePriceRanges.price) {
+          params.minPrice = activePriceRanges.price.min;
+          params.maxPrice = activePriceRanges.price.max;
+        }
+        // Ordenação
+        if (currentSort === 'price_asc') {
+          params.sortBy = 'price';
+          params.sortOrder = 'ASC';
+        } else if (currentSort === 'price_desc') {
+          params.sortBy = 'price';
+          params.sortOrder = 'DESC';
+        } else if (currentSort === 'newest') {
+          params.sortBy = 'createdAt';
+          params.sortOrder = 'DESC';
+        } else if (currentSort === 'rating') {
+          params.sortBy = 'rating';
+          params.sortOrder = 'DESC';
+        }
+        // Chamada à API pública
+        const response = await api.get('/products/public', { params });
+        setProducts(response.data.data || []);
+      } catch (err: any) {
+        setError('Erro ao carregar produtos. Tente novamente.');
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, activeFilters, activePriceRanges, currentSort]);
 
   // Gerenciar filtros
   const handleFilterChange = (groupId: string, optionId: string, checked: boolean) => {
@@ -301,4 +336,4 @@ export default function ProductsPage() {
       </div>
     </ProtectedLayout>
   );
-} 
+}
