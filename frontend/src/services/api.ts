@@ -15,11 +15,16 @@ const getFromCache = (url: string) => {
   return cachedData.data;
 };
 
-const setInCache = (url: string, data: any) => {
+interface CacheData {
+  data: unknown;
+  timestamp: number;
+}
+
+const setInCache = (url: string, data: unknown) => {
   cache.set(url, {
     data,
     timestamp: Date.now()
-  });
+  } as CacheData);
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';

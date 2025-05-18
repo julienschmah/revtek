@@ -1,14 +1,12 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
-import { FaUpload, FaTag, FaBoxOpen, FaDollarSign, FaInfoCircle, FaCheckCircle, FaChevronRight, FaChevronLeft, FaCamera } from 'react-icons/fa';
-import Link from 'next/link';
+import Image from 'next/image';
+import { FaBoxOpen, FaDollarSign, FaCheckCircle, FaChevronRight, FaChevronLeft, FaCamera } from 'react-icons/fa';
 import { IMaskInput } from 'react-imask';
 
 export default function AnunciarPage() {
-  const { user } = useAuth();
   const [formStep, setFormStep] = useState(1);
   const [formData, setFormData] = useState({
     titulo: '',
@@ -350,7 +348,7 @@ export default function AnunciarPage() {
                     <div className="flex flex-wrap gap-2 mt-4 w-full justify-center">
                       {previewUrls.map((url, idx) => (
                         <div key={idx} className="relative group">
-                          <img src={url} alt="Prévia" className="w-20 h-20 object-cover rounded-md border border-gray-200 shadow-sm" />
+                          <Image src={url} alt="Prévia" width={80} height={80} className="w-20 h-20 object-cover rounded-md border border-gray-200 shadow-sm" />
                           <button
                             type="button"
                             onClick={() => removeFile(idx)}
@@ -414,7 +412,7 @@ export default function AnunciarPage() {
                     <span className="font-semibold text-gray-700">Fotos:</span>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {previewUrls.map((url, idx) => (
-                        <img key={idx} src={url} alt="Prévia" className="w-16 h-16 object-cover rounded-md border border-gray-200" />
+                        <Image key={idx} src={url} alt="Prévia" width={64} height={64} className="w-16 h-16 object-cover rounded-md border border-gray-200" />
                       ))}
                     </div>
                   </div>
