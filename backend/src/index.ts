@@ -9,7 +9,6 @@ import { rateLimit } from 'express-rate-limit';
 // Rotas
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
-import routes from './routes';
 
 // Middlewares
 import { globalErrorHandler, AppError } from './middlewares/error.middleware';
@@ -51,7 +50,6 @@ app.use('/api', limiter);
 // Rotas
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api', routes);
 
 // Rota de teste
 app.get('/', (req, res) => {
@@ -81,4 +79,4 @@ const startServer = async () => {
   }
 };
 
-startServer();
+startServer(); 

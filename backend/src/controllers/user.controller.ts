@@ -38,10 +38,12 @@ export const getUserById = async (
     });
 
     let userId;
-    
-    // Se for a rota /me, usar o ID do usuário autenticado
+      // Se for a rota /me, usar o ID do usuário autenticado
     if (req.path === '/me' || req.originalUrl.endsWith('/me')) {
       console.log('Backend - getUserById: Using authenticated user ID from request');
+      if (!req.user) {
+        return next(new AppError('Usuário não autenticado', 401));
+      }
       userId = req.user.id;
     } else {
       // Caso contrário, usar o ID do parâmetro da rota
@@ -82,6 +84,11 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
+    // Verificar se o usuário está autenticado
+    if (!req.user) {
+      return next(new AppError('Usuário não autenticado', 401));
+    }
+
     // Não permitir atualização de senha por esta rota
     if (req.body.password) {
       return next(
@@ -129,6 +136,11 @@ export const deleteAccount = async (
   next: NextFunction
 ) => {
   try {
+    // Verificar se o usuário está autenticado
+    if (!req.user) {
+      return next(new AppError('Usuário não autenticado', 401));
+    }
+    
     const user = await User.findByPk(req.user.id);
     
     if (!user) {
@@ -204,4 +216,4 @@ export const adminDeleteUser = async (
   } catch (error) {
     next(error);
   }
-}; 
+};

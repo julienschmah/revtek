@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.model';
+import User, { UserInstance } from '../models/user.model';
 import NodeCache from 'node-cache';
 
 // Cache para armazenar usuários por 5 minutos
@@ -10,11 +10,10 @@ const userCache = new NodeCache({
   useClones: false // para economizar memória, não clonar objetos
 });
 
-// Estendendo a interface Request do Express para incluir o usuário
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user?: UserInstance;
     }
   }
 }
@@ -63,41 +62,40 @@ export const protect = async (
     
     // Verificar se o token é válido
     try {
-      const decoded: any = jwt.verify(
+      const decoded = jwt.verify(
         token,
         process.env.JWT_SECRET || 'seu-segredo-super-secreto'
-      );
+      ) as { id: number };
       
       console.log('Auth Middleware - protect: Token verified successfully', { 
         userId: decoded.id,
-        exp: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : 'unknown'
+        exp: (decoded as any).exp ? new Date((decoded as any).exp * 1000).toISOString() : 'unknown'
       });
 
       // Verificar se o usuário está no cache
       const cacheKey = `user_${decoded.id}`;
-      let currentUser = userCache.get(cacheKey);
+      let currentUser = userCache.get(cacheKey) as UserInstance | undefined;
       
       if (!currentUser) {
         console.log('Auth Middleware - protect: User not in cache, finding in database');
         // Verificar se o usuário ainda existe
-        currentUser = await User.findByPk(decoded.id);
+        const dbUser = await User.findByPk(decoded.id);
         
-        if (currentUser) {
-          // Armazenar no cache para futuras requisições
-          userCache.set(cacheKey, currentUser);
+        if (!dbUser) {
+          console.log('Auth Middleware - protect: User not found in database');
+          return res.status(401).json({
+            status: 'error',
+            message: 'O usuário não existe mais.',
+          });
         }
+        
+        currentUser = dbUser;
+        // Armazenar no cache para futuras requisições
+        userCache.set(cacheKey, currentUser);
       } else {
         console.log('Auth Middleware - protect: User found in cache');
       }
       
-      if (!currentUser) {
-        console.log('Auth Middleware - protect: User not found in database');
-        return res.status(401).json({
-          status: 'error',
-          message: 'O usuário não existe mais.',
-        });
-      }
-
       // Verificar se o usuário está ativo
       if (!currentUser.isActive) {
         console.log('Auth Middleware - protect: User account is inactive');
@@ -119,60 +117,81 @@ export const protect = async (
       // Adicionar o usuário ao request
       req.user = currentUser;
       next();
-    } catch (jwtError) {
-      console.error('Auth Middleware - protect: JWT verification failed', {
-        error: (jwtError as Error).message
-      });
+    } catch (err) {
+      console.error('Auth Middleware - protect: Invalid token', err);
       return res.status(401).json({
         status: 'error',
         message: 'Token inválido ou expirado.',
       });
     }
-  } catch (error) {
-    console.error('Auth Middleware - protect: Unexpected error', {
-      error: (error as Error).message,
-      stack: (error as Error).stack
-    });
-    
-    return res.status(401).json({
+  } catch (err) {
+    console.error('Auth Middleware - protect: Unexpected error', err);
+    return res.status(500).json({
       status: 'error',
-      message: 'Token inválido ou expirado.',
+      message: 'Erro no servidor. Tente novamente mais tarde.',
     });
   }
 };
 
-// Função para limpar o cache do usuário
-export const clearUserCache = (userId: number) => {
-  userCache.del(`user_${userId}`);
-  console.log(`Auth Middleware - Cache cleared for user ${userId}`);
-};
-
-// Middleware para verificar permissões de usuário
 export const restrictTo = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log('Auth Middleware - restrictTo: Checking permissions', {
-      userRole: req.user?.role,
-      requiredRoles: roles
-    });
-    
     if (!req.user) {
-      console.log('Auth Middleware - restrictTo: No authenticated user found');
       return res.status(401).json({
         status: 'error',
         message: 'Você não está autenticado. Por favor, faça login.',
       });
     }
 
-    // Verificar se o usuário tem permissão
+    // Verificar se o usuário tem o papel necessário
     if (!roles.includes(req.user.role)) {
-      console.log('Auth Middleware - restrictTo: Permission denied');
       return res.status(403).json({
         status: 'error',
-        message: 'Você não tem permissão para realizar esta ação.',
+        message: 'Você não tem permissão para acessar este recurso.',
       });
     }
 
-    console.log('Auth Middleware - restrictTo: Permission granted');
     next();
   };
-}; 
+};
+
+export class AppError extends Error {
+  statusCode: number;
+  status: string;
+  isOperational: boolean;
+
+  constructor(message: string, statusCode: number) {
+    super(message);
+    this.statusCode = statusCode;
+    this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
+    this.isOperational = true;
+
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+export const globalErrorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  // Log do erro
+  console.error('Error Handler:', {
+    message: err.message,
+    name: err.name,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+    statusCode: err.statusCode
+  });
+
+  // Enviar resposta com erro
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.isOperational ? err.message : 'Erro no servidor. Tente novamente mais tarde.',
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+};

@@ -139,8 +139,14 @@ export const getCurrentUser = async (
   next: NextFunction
 ) => {
   try {
+    // Verificar se o usuário está autenticado
+    if (!req.user) {
+      console.log('Backend - getCurrentUser: User not authenticated');
+      return next(new AppError('Usuário não autenticado', 401));
+    }
+    
     console.log('Backend - getCurrentUser: Returning current user data', { 
-      userId: req.user?.id
+      userId: req.user.id
     });
     
     res.status(200).json({
@@ -177,13 +183,17 @@ export const updatePassword = async (
       return next(
         new AppError('Por favor, forneça a senha atual e a nova senha', 400)
       );
+    }    // Verificar se req.user existe
+    if (!req.user) {
+      console.log('Backend - updatePassword: User not authenticated');
+      return next(new AppError('Usuário não autenticado', 401));
     }
-
+    
     // Obter o usuário com a senha
     const user = await User.findByPk(req.user.id);
 
     if (!user) {
-      console.log('Backend - updatePassword: User not found', { userId: req.user?.id });
+      console.log('Backend - updatePassword: User not found', { userId: req.user.id });
       return next(new AppError('Usuário não encontrado', 404));
     }
 
