@@ -32,7 +32,6 @@ export interface AdminUpdateUserData extends UpdateUserData {
   isActive?: boolean;
 }
 
-// Função para atualizar dados do usuário atual
 export const updateCurrentUser = async (data: UpdateUserData): Promise<UserData> => {
   const response = await api.patch<{ status: string; data: { user: UserData } }>(
     '/users/update-me',
@@ -41,20 +40,16 @@ export const updateCurrentUser = async (data: UpdateUserData): Promise<UserData>
   return response.data.data.user;
 };
 
-// Função para atualizar senha do usuário atual
 export const updatePassword = async (data: PasswordUpdateData): Promise<void> => {
   await api.patch('/users/update-password', data);
 };
 
-// Função para desativar a conta do usuário atual
 export const deleteCurrentUser = async (): Promise<void> => {
   await api.delete('/users/delete-me');
   localStorage.removeItem('token');
 };
 
-// Funções administrativas
 
-// Obter todos os usuários (admin)
 export const getAllUsers = async (): Promise<UserData[]> => {
   const response = await api.get<{ status: string; results: number; data: { users: UserData[] } }>(
     '/users'
@@ -62,7 +57,6 @@ export const getAllUsers = async (): Promise<UserData[]> => {
   return response.data.data.users;
 };
 
-// Obter um usuário pelo ID (admin)
 export const getUserById = async (id: string): Promise<UserData> => {
   const response = await api.get<{ status: string; data: { user: UserData } }>(
     `/users/${id}`
@@ -70,7 +64,6 @@ export const getUserById = async (id: string): Promise<UserData> => {
   return response.data.data.user;
 };
 
-// Atualizar um usuário pelo ID (admin)
 export const updateUser = async (id: string, data: AdminUpdateUserData): Promise<UserData> => {
   const response = await api.patch<{ status: string; data: { user: UserData } }>(
     `/users/${id}`,
@@ -79,7 +72,6 @@ export const updateUser = async (id: string, data: AdminUpdateUserData): Promise
   return response.data.data.user;
 };
 
-// Excluir um usuário pelo ID (admin)
 export const deleteUser = async (id: string): Promise<void> => {
   await api.delete(`/users/${id}`);
 }; 

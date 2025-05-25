@@ -48,11 +48,9 @@ export interface AuthResponse {
   };
 }
 
-// Função para registrar um novo usuário
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
   const response = await api.post<AuthResponse>('/auth/register', data);
   
-  // Salvar o token no localStorage
   if (response.data.token) {
     localStorage.setItem('token', response.data.token);
   }
@@ -60,11 +58,9 @@ export const register = async (data: RegisterData): Promise<AuthResponse> => {
   return response.data;
 };
 
-// Função para fazer login
 export const login = async (data: LoginData): Promise<AuthResponse> => {
   const response = await api.post<AuthResponse>('/auth/login', data);
   
-  // Salvar o token no localStorage
   if (response.data.token) {
     localStorage.setItem('token', response.data.token);
   }
@@ -72,23 +68,19 @@ export const login = async (data: LoginData): Promise<AuthResponse> => {
   return response.data;
 };
 
-// Função para fazer logout
 export const logout = async (): Promise<void> => {
   await api.get('/auth/logout');
   localStorage.removeItem('token');
 };
 
-// Função para obter o usuário atual
 export const getCurrentUser = async (): Promise<UserData> => {
   const response = await api.get<{ status: string; data: { user: UserData } }>('/auth/me');
   return response.data.data.user;
 };
 
-// Função para atualizar a senha
 export const updatePassword = async (data: UpdatePasswordData): Promise<AuthResponse> => {
   const response = await api.patch<AuthResponse>('/auth/update-password', data);
   
-  // Atualizar o token no localStorage
   if (response.data.token) {
     localStorage.setItem('token', response.data.token);
   }

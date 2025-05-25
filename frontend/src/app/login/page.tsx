@@ -126,9 +126,9 @@ export default function LoginPage() {
           </div>
           
           {/* Card de login com efeito futurista */}
-          <div className="bg-[#120805] rounded-2xl shadow-[0_0_40px_rgba(217,119,6,0.1)] p-8 border border-amber-900/30 backdrop-blur-sm transform hover:-translate-y-1 transition-all duration-300">
+          <div className="bg-[#120805] rounded-2xl shadow-[0_0_40px_rgba(217,119,6,0.1)] p-8 border border-amber-900/30 backdrop-blur-sm transform hover:-translate-y-1 transition-all duration-300 relative">
             {/* Efeito de borda brilhante no hover */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-brown-600/20 rounded-2xl opacity-0 group-hover:opacity-100 blur-sm transition-all duration-500"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-brown-600/20 rounded-2xl opacity-0 group-hover:opacity-100 blur-sm transition-all duration-500 pointer-events-none"></div>
             
             <h2 className="text-2xl font-bold text-amber-100 mb-8 text-center tracking-wide">
               Entrar na sua conta
@@ -226,7 +226,7 @@ export default function LoginPage() {
                   </span>
                   <FaChevronRight className="ml-2 opacity-70 group-hover:translate-x-1 transition-transform" />
                 </div>
-                <div className="absolute inset-0 rounded-lg shadow-[0_0_20px_rgba(217,119,6,0.3)] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 rounded-lg shadow-[0_0_20px_5px_rgba(217,119,6,0.3)] opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </button>
             </form>
             
@@ -243,4 +243,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-} 
+}

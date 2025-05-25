@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import { rateLimit } from 'express-rate-limit';
+import compression from 'compression';
 
 // Rotas
 import authRoutes from './routes/auth.routes';
@@ -12,6 +13,7 @@ import userRoutes from './routes/user.routes';
 
 // Middlewares
 import { globalErrorHandler, AppError } from './middlewares/error.middleware';
+import { performanceMonitor, enableCompression } from './middlewares/performance.middleware';
 
 // Inicialização do banco de dados
 import { initDatabase } from './config/init-db';
@@ -28,7 +30,10 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 app.use(helmet());
+app.use(compression()); // Comprimir todas as respostas
 app.use(morgan('dev'));
+app.use(performanceMonitor); // Adicionar monitoramento de performance
+app.use(enableCompression); // Configurações de cache
 
 // Configuração do CORS
 app.use(

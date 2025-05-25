@@ -25,10 +25,12 @@ export const performanceMonitor = (req: Request, res: Response, next: NextFuncti
   };
   
   // Função para calcular tempo de resposta ao finalizar
+  let timerEnded = false;
   const endTimer = () => {
+    if (timerEnded) return;
+    timerEnded = true;
     const endTime = Date.now();
     const duration = endTime - startTime;
-    
     stats.endTime = endTime;
     stats.duration = duration;
     
@@ -38,8 +40,12 @@ export const performanceMonitor = (req: Request, res: Response, next: NextFuncti
       requestStats.shift(); // Remove o mais antigo quando chegar ao limite
     }
     
-    // Adicionar tempo de resposta ao cabeçalho
-    res.setHeader('X-Response-Time', `${duration}ms`);
+    try {
+      // Adicionar tempo de resposta ao cabeçalho
+      res.setHeader('X-Response-Time', `${duration}ms`);
+    } catch (err) {
+      // Header já enviado, ignora
+    }
     
     // Log de performance
     console.log(`Performance - ${req.method} ${req.originalUrl}: ${duration}ms`);
@@ -100,4 +106,4 @@ export const enableCompression = (req: Request, res: Response, next: NextFunctio
   }
   
   next();
-}; 
+};

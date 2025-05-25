@@ -3,11 +3,11 @@ import jwt from 'jsonwebtoken';
 import User, { UserInstance } from '../models/user.model';
 import NodeCache from 'node-cache';
 
-// Cache para armazenar usuários por 5 minutos
 const userCache = new NodeCache({
-  stdTTL: 300, // 5 minutos
-  checkperiod: 60, // verificar expiração a cada 1 minuto
-  useClones: false // para economizar memória, não clonar objetos
+  stdTTL: 900,
+  checkperiod: 300,
+  useClones: false,
+  maxKeys: 1000
 });
 
 declare global {
@@ -25,36 +25,41 @@ export const protect = async (
 ) => {
   const startTime = Date.now();
   try {
-    console.log('Auth Middleware - protect: Processing request', { 
-      path: req.path, 
-      method: req.method,
-      hasAuthHeader: !!req.headers.authorization,
-      hasCookies: !!req.cookies
-    });
+    const isDebug = process.env.NODE_ENV === 'development';
+    
+    if (isDebug) {
+      console.log('Auth Middleware - protect: Processing request', { 
+        path: req.path, 
+        method: req.method
+      });
+    }
     
     let token;
 
-    // Verificar se o token existe no header Authorization
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith('Bearer')
     ) {
-      // Pegar o token do header
       token = req.headers.authorization.split(' ')[1];
       console.log('Auth Middleware - protect: Found token in Authorization header');
     } 
-    // Verificar se o token existe nos cookies
     else if (req.cookies && req.cookies.jwt) {
       token = req.cookies.jwt;
       console.log('Auth Middleware - protect: Found token in cookies');
     }
-
-    // Verificar se o token existe
     if (!token) {
       console.log('Auth Middleware - protect: No token found');
       return res.status(401).json({
         status: 'error',
         message: 'Você não está autenticado. Por favor, faça login.',
+      });
+    }
+    
+    if (!token.includes('.') || token.split('.').length !== 3) {
+      console.error('Auth Middleware - protect: Invalid token format');
+      return res.status(401).json({
+        status: 'error',
+        message: 'Formato de token inválido. Por favor, faça login novamente.',
       });
     }
 
@@ -72,7 +77,6 @@ export const protect = async (
         exp: (decoded as any).exp ? new Date((decoded as any).exp * 1000).toISOString() : 'unknown'
       });
 
-      // Verificar se o usuário está no cache
       const cacheKey = `user_${decoded.id}`;
       let currentUser = userCache.get(cacheKey) as UserInstance | undefined;
       

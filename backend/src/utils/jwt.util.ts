@@ -4,13 +4,12 @@ import { IUser } from '../interfaces/user.interface';
 
 export const generateToken = (id: number): string => {
   console.log('JWT Util - Generating token for userId:', id);
-  try {
-    const secret = 'revmak-jwt-secret-key-2023';
+  try {    const secret = process.env.JWT_SECRET || 'seu-segredo-super-secreto';
     const expiresIn = '3h';
     
     console.log('JWT Util - Token configuration:', {
       expiresIn,
-      usingFixedSecret: true
+      usingEnvSecret: !!process.env.JWT_SECRET
     });
     
     const token = jwt.sign({ id: id }, secret, { expiresIn });

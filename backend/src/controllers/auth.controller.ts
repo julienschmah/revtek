@@ -3,7 +3,6 @@ import User from '../models/user.model';
 import { createSendToken } from '../utils/jwt.util';
 import { AppError } from '../middlewares/error.middleware';
 
-// Registrar um novo usuário
 export const register = async (
   req: Request,
   res: Response,
@@ -17,7 +16,6 @@ export const register = async (
     
     const { name, email, password } = req.body;
 
-    // Verificar se o email já está em uso
     const existingUser = await User.findOne({
       where: { email }
     });
@@ -29,14 +27,13 @@ export const register = async (
 
     console.log('Backend - register: Creating new user', { name, email });
     
-    // Criar novo usuário
     try {
       const newUser = await User.create({
         name,
         email,
         password,
-        role: 'user',     // Campo obrigatório que estava faltando
-        isActive: true    // Campo obrigatório que estava faltando
+        role: 'user',   
+        isActive: true    
       });
       
       console.log('Backend - register: User created successfully', { 

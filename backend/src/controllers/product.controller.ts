@@ -397,9 +397,7 @@ class ProductController {
       
       if (sellerId) {
         where.sellerId = sellerId;
-      }
-
-      // Buscar produtos com paginação e filtros
+      }      // Buscar produtos com paginação e filtros
       const { count, rows } = await Product.findAndCountAll({
         where,
         limit,
@@ -417,6 +415,11 @@ class ProductController {
             attributes: ['id', 'name', 'profilePicture'],
           },
         ],
+        // Especificar exatamente quais atributos queremos para otimizar a consulta
+        attributes: [
+          'id', 'name', 'price', 'description', 'brand', 'model', 
+          'images', 'isNew', 'createdAt', 'stock', 'salesCount'
+        ]
       });
 
       // Calcular meta-informações para paginação
