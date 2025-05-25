@@ -38,7 +38,7 @@ export const ESTADOS_BRASILEIROS = [
 ];
 
 export function useProfileForm() {
-  const { user, updateUserData } = useAuth();
+  const { user, updateUserData, refreshUserData } = useAuth();
   const [formData, setFormData] = useState<UserFormData>({
     name: user?.name || '',
     email: user?.email || '',
@@ -71,7 +71,6 @@ export function useProfileForm() {
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [isBecomingSeller, setIsBecomingSeller] = useState(false);
-
   // Verifica se o usuário está tentando se tornar vendedor
   useEffect(() => {
     if (formData.isSeller && !user?.isSeller) {
@@ -80,6 +79,30 @@ export function useProfileForm() {
       setIsBecomingSeller(false);
     }
   }, [formData.isSeller, user?.isSeller]);
+
+  // Atualiza o formData quando o user mudar
+  useEffect(() => {
+    if (user) {
+      console.log('Atualizando formData com os dados do usuário:', user);
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        cpf: user.cpf || '',
+        cnpj: user.cnpj || '',
+        phone: user.phone || '',
+        birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '',
+        address: user.address || '',
+        addressNumber: user.addressNumber || '',
+        complement: user.complement || '',
+        neighborhood: user.neighborhood || '',
+        city: user.city || '',
+        state: user.state || '',
+        zipCode: user.zipCode || '',
+        companyName: user.companyName || '',
+        isSeller: user.isSeller || false
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -164,22 +187,10 @@ export function useProfileForm() {
       [name]: formattedValue
     });
   };
-
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validações básicas
-    if (isBecomingSeller) {
-      if (!formData.phone) {
-        setValidationError('Telefone é obrigatório para vendedores');
-        return;
-      }
-      if (!formData.address || !formData.city || !formData.state || !formData.zipCode) {
-        setValidationError('Endereço completo é obrigatório para vendedores');
-        return;
-      }
-    }
-    
     if (formData.cpf && !validateCPF(formData.cpf)) {
       setValidationError('CPF inválido');
       return;
@@ -192,10 +203,19 @@ export function useProfileForm() {
     
     setIsUpdating(true);
     setUpdateSuccess(false);
-    setValidationError('');
-
-    try {
-      const updatedUser = await userService.updateCurrentUser(formData);
+    setValidationError('');    try {
+      // Apenas envia email e telefone para atualização
+      const dataToSubmit = {
+        email: formData.email,
+        phone: formData.phone,
+        isSeller: true  // Garante que o usuário sempre seja vendedor
+      };
+      
+      console.log('Enviando dados para atualização:', dataToSubmit);
+      const updatedUser = await userService.updateCurrentUser(dataToSubmit);
+      console.log('Dados atualizados recebidos do servidor:', updatedUser);
+      
+      // Força o refresh dos dados do usuário para garantir que todos os campos estão atualizados
       updateUserData(updatedUser);
       setUpdateSuccess(true);
       window.scrollTo({top: 0, behavior: 'smooth'});
@@ -245,7 +265,39 @@ export function useProfileForm() {
       setIsChangingPassword(false);
     }
   };
-
+  // Função para forçar o refresh dos dados do usuário
+  const forceRefresh = async () => {
+    try {
+      await refreshUserData();
+      
+      // Após o refreshUserData, o user já estará atualizado através do AuthContext
+      if (user) {
+        // Atualiza o formulário com os dados atualizados do usuário
+        setFormData({
+          name: user.name || '',
+          email: user.email || '',
+          cpf: user.cpf || '',
+          cnpj: user.cnpj || '',
+          phone: user.phone || '',
+          birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : '',
+          address: user.address || '',
+          addressNumber: user.addressNumber || '',
+          complement: user.complement || '',
+          neighborhood: user.neighborhood || '',
+          city: user.city || '',
+          state: user.state || '',
+          zipCode: user.zipCode || '',
+          companyName: user.companyName || '',
+          isSeller: user.isSeller || false
+        });
+        setUpdateSuccess(true);
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar dados:', error);
+      setValidationError('Erro ao atualizar dados do perfil');
+    }
+  };
+  
   const clearAllMessages = () => {
     setUpdateSuccess(false);
     setPasswordSuccess(false);
@@ -267,6 +319,7 @@ export function useProfileForm() {
     handleSpecialInputChange,
     handleUpdateProfile,
     handleChangePassword,
-    clearAllMessages
+    clearAllMessages,
+    forceRefresh
   };
 }

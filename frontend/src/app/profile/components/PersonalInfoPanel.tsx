@@ -4,6 +4,7 @@ import React from 'react';
 import { FaUser, FaEnvelope, FaIdCard, FaPhone, FaCalendarAlt } from 'react-icons/fa';
 import { UserFormData } from './useProfileForm';
 import { IMaskInput } from 'react-imask';
+import { FaSync } from 'react-icons/fa';
 
 interface PersonalInfoPanelProps {
   formData: UserFormData;
@@ -11,6 +12,7 @@ interface PersonalInfoPanelProps {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleSpecialInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpdateProfile: (e: React.FormEvent) => void;
+  forceRefresh?: () => Promise<void>;
 }
 
 export default function PersonalInfoPanel({
@@ -20,16 +22,22 @@ export default function PersonalInfoPanel({
   handleSpecialInputChange,
   handleUpdateProfile
 }: PersonalInfoPanelProps) {
+  // Debug para visualizar os dados do formulário
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('PersonalInfoPanel - formData:', formData);
+    }
+  }, [formData]);
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-8 mb-6 transition-all duration-300 hover:shadow-xl border border-gray-100">
       <h2 className="text-2xl font-semibold mb-6 text-gray-800 border-b pb-4">Informações Pessoais</h2>
 
       <form onSubmit={handleUpdateProfile}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">          <div className="mb-4">
             <label htmlFor="name" className="flex items-center text-gray-700 font-medium mb-2">
               <FaUser className="mr-2 text-amber-500" />
-              Nome Completo *
+              Nome Completo
             </label>
             <div className="relative">
               <input
@@ -37,9 +45,8 @@ export default function PersonalInfoPanel({
                 name="name"
                 type="text"
                 value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
-                required
+                readOnly
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
               />
             </div>
           </div>
@@ -60,49 +67,48 @@ export default function PersonalInfoPanel({
                 required
               />
             </div>
-          </div>
-          
-          <div className="mb-4">
+          </div>            <div className="mb-4">
             <label htmlFor="cpf" className="flex items-center text-gray-700 font-medium mb-2">
               <FaIdCard className="mr-2 text-amber-500" />
-              CPF *
+              CPF
             </label>
             <div className="relative">
-              <IMaskInput
-                mask="000.000.000-00"
-                value={formData.cpf}
-                onAccept={(value) => handleSpecialInputChange({ target: { name: 'cpf', value } } as any)}
+              <input
                 id="cpf"
                 name="cpf"
-                placeholder="Digite seu CPF"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
-                required
+                type="text"
+                value={formData.cpf || ''}
+                readOnly
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
               />
+              {/* Debug info */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-500 mt-1">
+                  formData.cpf: {JSON.stringify(formData.cpf)} | 
+                  user.cpf: {JSON.stringify(formData.cpf)}
+                </div>
+              )}
             </div>
-          </div>
-
-          <div className="mb-4">
+          </div><div className="mb-4">
             <label htmlFor="cnpj" className="flex items-center text-gray-700 font-medium mb-2">
               <FaIdCard className="mr-2 text-amber-500" />
               CNPJ
             </label>
             <div className="relative">
-              <IMaskInput
-                mask="00.000.000/0000-00"
-                value={formData.cnpj}
-                onAccept={(value) => handleSpecialInputChange({ target: { name: 'cnpj', value } } as any)}
+              <input
                 id="cnpj"
                 name="cnpj"
-                placeholder="Digite seu CNPJ"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                type="text"
+                value={formData.cnpj || ''}
+                readOnly
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
               />
             </div>
           </div>
-          
-          <div className="mb-4">
+            <div className="mb-4">
             <label htmlFor="phone" className="flex items-center text-gray-700 font-medium mb-2">
               <FaPhone className="mr-2 text-amber-500" />
-              Telefone {formData.isSeller && <span className="text-amber-600 ml-1">*</span>}
+              Telefone
             </label>
             <div className="relative">
               <input
@@ -114,12 +120,10 @@ export default function PersonalInfoPanel({
                 placeholder="(11) 98765-4321"
                 maxLength={15}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
-                required={formData.isSeller}
               />
             </div>
           </div>
-          
-          <div className="mb-4">
+            <div className="mb-4">
             <label htmlFor="birthDate" className="flex items-center text-gray-700 font-medium mb-2">
               <FaCalendarAlt className="mr-2 text-amber-500" />
               Data de Nascimento
@@ -129,9 +133,9 @@ export default function PersonalInfoPanel({
                 id="birthDate"
                 name="birthDate"
                 type="date"
-                value={formData.birthDate}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                value={formData.birthDate || ''}
+                readOnly
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
               />
             </div>
           </div>

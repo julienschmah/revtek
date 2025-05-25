@@ -36,17 +36,9 @@ export default function AnunciarPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Verificar se o usuário preencheu os campos obrigatórios
+  // Verificar se o usuário está logado
   useEffect(() => {
-    if (user) {
-      // Verificar se os dados do perfil estão preenchidos
-      if (!user.cpf && !user.cnpj) {
-        alert('Para anunciar, você precisa completar seu cadastro preenchendo CPF ou CNPJ.');
-        setRedirecting(true);
-        router.push('/profile');
-      }
-    }
+    // Não é necessário verificar nada além do login, que já é feito pelo ProtectedLayout
   }, [user, router]);
 
   // Se estiver redirecionando, não renderizar o restante do componente

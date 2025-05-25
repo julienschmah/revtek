@@ -8,9 +8,8 @@ class ProductController {
   /**
    * Cria um novo produto
    */
-  public async create(req: Request, res: Response): Promise<Response> {
-    try {
-      // Verificar se o usuário logado é um vendedor
+  public async create(req: Request, res: Response): Promise<Response> {    try {
+      // Verificar se o usuário está autenticado
       const userId = req.user?.id;
       
       if (!userId) {
@@ -22,10 +21,10 @@ class ProductController {
 
       const user = await User.findByPk(userId);
       
-      if (!user || !user.get('isSeller')) {
-        return res.status(403).json({
+      if (!user) {
+        return res.status(404).json({
           success: false,
-          message: 'Apenas vendedores podem cadastrar produtos',
+          message: 'Usuário não encontrado',
         });
       }
 
