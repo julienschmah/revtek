@@ -97,11 +97,13 @@ export const updateUser = async (
           400
         )
       );
-    }
-
-    // Filtrar campos não permitidos
+    }    // Filtrar campos não permitidos
     const filteredBody: any = {};
-    const allowedFields = ['name', 'email'];
+    const allowedFields = [
+      'name', 'email', 'cpf', 'cnpj', 'phone', 'birthDate', 
+      'address', 'addressNumber', 'complement', 'neighborhood', 
+      'city', 'state', 'zipCode', 'companyName', 'isSeller'
+    ];
     
     Object.keys(req.body).forEach((field) => {
       if (allowedFields.includes(field)) {

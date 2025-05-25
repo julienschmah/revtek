@@ -6,7 +6,6 @@ import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileTabs from './components/ProfileTabs';
 import PersonalInfoPanel from './components/PersonalInfoPanel';
-import AddressPanel from './components/AddressPanel';
 import SellerPanel from './components/SellerPanel';
 import SecurityPanel from './components/SecurityPanel';
 import { useProfileForm } from './components/useProfileForm';
@@ -48,16 +47,6 @@ export default function ProfilePage() {
           <Tab.Panels className="mt-2">
             <Tab.Panel className="p-1 focus:outline-none">
               <PersonalInfoPanel 
-                formData={formData}
-                isUpdating={isUpdating}
-                handleInputChange={handleInputChange}
-                handleSpecialInputChange={handleSpecialInputChange}
-                handleUpdateProfile={handleUpdateProfile}
-              />
-            </Tab.Panel>
-            
-            <Tab.Panel className="p-1 focus:outline-none">
-              <AddressPanel 
                 formData={formData}
                 isUpdating={isUpdating}
                 handleInputChange={handleInputChange}

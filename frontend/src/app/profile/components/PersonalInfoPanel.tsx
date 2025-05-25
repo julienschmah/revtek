@@ -3,6 +3,7 @@
 import React from 'react';
 import { FaUser, FaEnvelope, FaIdCard, FaPhone, FaCalendarAlt } from 'react-icons/fa';
 import { UserFormData } from './useProfileForm';
+import { IMaskInput } from 'react-imask';
 
 interface PersonalInfoPanelProps {
   formData: UserFormData;
@@ -64,17 +65,35 @@ export default function PersonalInfoPanel({
           <div className="mb-4">
             <label htmlFor="cpf" className="flex items-center text-gray-700 font-medium mb-2">
               <FaIdCard className="mr-2 text-amber-500" />
-              CPF
+              CPF *
             </label>
             <div className="relative">
-              <input
+              <IMaskInput
+                mask="000.000.000-00"
+                value={formData.cpf}
+                onAccept={(value) => handleSpecialInputChange({ target: { name: 'cpf', value } } as any)}
                 id="cpf"
                 name="cpf"
-                type="text"
-                value={formData.cpf}
-                onChange={handleSpecialInputChange}
-                placeholder="123.456.789-01"
-                maxLength={14}
+                placeholder="Digite seu CPF"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="cnpj" className="flex items-center text-gray-700 font-medium mb-2">
+              <FaIdCard className="mr-2 text-amber-500" />
+              CNPJ
+            </label>
+            <div className="relative">
+              <IMaskInput
+                mask="00.000.000/0000-00"
+                value={formData.cnpj}
+                onAccept={(value) => handleSpecialInputChange({ target: { name: 'cnpj', value } } as any)}
+                id="cnpj"
+                name="cnpj"
+                placeholder="Digite seu CNPJ"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
               />
             </div>

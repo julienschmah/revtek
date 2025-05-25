@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Tab } from '@headlessui/react';
-import { FaIdCard, FaBuilding, FaBox, FaLock } from 'react-icons/fa';
+import { FaIdCard, FaBox, FaLock } from 'react-icons/fa';
 
 interface ProfileTabsProps {
   children: React.ReactNode;
@@ -22,10 +22,6 @@ export default function ProfileTabs({ children }: ProfileTabsProps) {
       <Tab.List className="flex rounded-xl bg-white p-2 mb-8 shadow-lg">
         <Tab className={tabClassNames}>
           <FaIdCard className="mr-2" /> Informações Pessoais
-        </Tab>
-        
-        <Tab className={tabClassNames}>
-          <FaBuilding className="mr-2" /> Endereço
         </Tab>
         
         <Tab className={tabClassNames}>

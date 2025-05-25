@@ -132,24 +132,20 @@ export default function ProductsPage() {
     { label: 'Produtos', href: '/produtos' },
   ];
 
-  // Carregar produtos reais da API pública  useEffect(() => {
+  useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(undefined);
       try {
-        // Montar parâmetros de busca/filtro
         const params: Record<string, string | number> = {};
         if (searchQuery) params.search = searchQuery;
-        // Filtros rápidos e laterais (exemplo simplificado)
         if (activeFilters.category && activeFilters.category.length > 0) {
-          // Supondo que categoryId seja o slug ou id real
           params.categoryId = activeFilters.category[0];
         }
         if (activePriceRanges.price) {
           params.minPrice = activePriceRanges.price.min;
           params.maxPrice = activePriceRanges.price.max;
         }
-        // Ordenação
         if (currentSort === 'price_asc') {
           params.sortBy = 'price';
           params.sortOrder = 'ASC';
@@ -164,11 +160,9 @@ export default function ProductsPage() {
           params.sortOrder = 'DESC';
         }
         
-        // Chamada à API
         const response = await fetch('/api/products?' + new URLSearchParams(params as Record<string, string>));
         const responseData = await response.json();
         
-        // Transformar os dados da API para o formato esperado pelo componente
         const formattedProducts = (responseData.data || []).map((product: any) => ({
           id: product.id,
           name: product.name,
@@ -249,10 +243,7 @@ export default function ProductsPage() {
   return (
     <ProtectedLayout>
       <div className="min-h-screen bg-gray-50">
-        {/* Breadcrumb */}
         <Breadcrumb items={breadcrumbItems} currentPage="Equipamentos para Restaurante" />
-        
-        {/* Barra de busca e ordenação */}
         <SearchBar
           query={searchQuery}
           onQueryChange={setSearchQuery}
@@ -264,7 +255,6 @@ export default function ProductsPage() {
           categoryName="Equipamentos para Restaurante"
         />
         
-        {/* Filtros rápidos */}
         <FilterBar
           options={quickFilterOptions}
           activeFilters={quickFilters}
@@ -272,10 +262,8 @@ export default function ProductsPage() {
           showMobileFilters={() => setShowMobileFilters(true)}
         />
         
-        {/* Conteúdo principal */}
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Filtros laterais (desktop) */}
             <div className="hidden md:block w-64 flex-shrink-0">
               <div className="sticky top-24">
                 <SideFilters
@@ -289,7 +277,6 @@ export default function ProductsPage() {
               </div>
             </div>
             
-            {/* Listagem de produtos */}
             <div className="flex-grow">
               <ProductList
                 products={products}
@@ -302,7 +289,6 @@ export default function ProductsPage() {
           </div>
         </div>
         
-        {/* Filtros laterais (mobile) */}
         {showMobileFilters && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex md:hidden">
             <div className="bg-white w-4/5 h-full overflow-y-auto">

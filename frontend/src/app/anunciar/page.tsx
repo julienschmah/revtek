@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import { FormData, ErrorState } from './components/types';
 import { FaChevronRight, FaChevronLeft, FaCheckCircle, FaCamera, FaDollarSign, FaBoxOpen } from 'react-icons/fa';
 import { IMaskInput } from 'react-imask';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Componentes
 import StepHeader from './components/StepHeader';
@@ -16,6 +18,8 @@ import PhotoStep from './components/PhotoStep';
 import ReviewStep from './components/ReviewStep';
 
 export default function AnunciarPage() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [formStep, setFormStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     titulo: '',
@@ -30,8 +34,35 @@ export default function AnunciarPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<ErrorState>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Verificar se o usuário preencheu os campos obrigatórios
+  useEffect(() => {
+    if (user) {
+      // Verificar se os dados do perfil estão preenchidos
+      if (!user.cpf && !user.cnpj) {
+        alert('Para anunciar, você precisa completar seu cadastro preenchendo CPF ou CNPJ.');
+        setRedirecting(true);
+        router.push('/profile');
+      }
+    }
+  }, [user, router]);
+
+  // Se estiver redirecionando, não renderizar o restante do componente
+  if (redirecting) {
+    return (
+      <ProtectedLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl mb-4">Redirecionando para completar seu cadastro...</h1>
+            <p>Para anunciar produtos, você precisa preencher seus dados de CPF ou CNPJ.</p>
+          </div>
+        </div>
+      </ProtectedLayout>
+    );
+  }
+  
   // Validação simples
   const validateStep = (step: number) => {
     const newErrors: {[key:string]: string} = {};
