@@ -104,12 +104,69 @@ export default function AnunciarPage() {
     window.scrollTo(0, 0);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Função para upload de imagens
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    const uploadedPaths: string[] = [];
+    for (const file of files) {
+      const formData = new window.FormData();
+      formData.append('file', file);
+      // Corrige a URL para o backend
+      const res = await fetch('http://localhost:3001/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.success && data.path) {
+        uploadedPaths.push(data.path);
+      } else {
+        throw new Error(data.message || 'Erro ao fazer upload da imagem');
+      }
+    }
+    return uploadedPaths;
+  };
+
+  // Função para publicar anúncio
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep(3)) return;
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
-    // Aqui você pode enviar os dados para a API
+    setIsSubmitting(true);
+    try {
+      // 1. Upload das imagens
+      const imagePaths = await uploadImages(formData.fotos);      // 2. Montar dados do produto
+      const productPayload = {
+        name: formData.titulo,
+        description: formData.descricao,
+        price: parseFloat(formData.preco.replace(/[^\d,\.]/g, '').replace(',', '.')),
+        stock: parseInt(formData.quantidade, 10),
+        categoryId: parseInt(formData.categoria, 10),
+        brand: 'Genérica', // Valor padrão
+        model: 'Padrão', // Valor padrão
+        images: imagePaths,
+        features: formData.especificacoes ? { especificacoes: formData.especificacoes } : {},
+      };
+      // 3. Enviar para API de produtos
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(productPayload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+        setFormStep(1);
+        setFormData({ titulo: '', categoria: '', preco: '', quantidade: '', descricao: '', especificacoes: '', fotos: [] });
+        setPreviewUrls([]);
+      } else {
+        alert(data.message || 'Erro ao publicar anúncio');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Erro ao publicar anúncio');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

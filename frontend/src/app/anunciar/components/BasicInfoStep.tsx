@@ -49,8 +49,7 @@ export default function BasicInfoStep({
           required
         />
         {errors.titulo && <span className="text-xs text-red-500">{errors.titulo}</span>}
-      </div>
-      <div>
+      </div>      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
           Categoria*
           <span className="ml-1 text-xs text-gray-400" title="Escolha a categoria mais adequada">?</span>
@@ -63,13 +62,18 @@ export default function BasicInfoStep({
           required
         >
           <option value="">Selecione uma categoria</option>
-          <option value="fogoes">Fogões Industriais</option>
-          <option value="refrigeracao">Refrigeração</option>
-          <option value="fornos">Fornos</option>
-          <option value="chapas">Chapas e Fritadeiras</option>
-          <option value="liquidificadores">Liquidificadores</option>
-          <option value="utensilios">Utensílios</option>
-          <option value="outros">Outros</option>
+          <option value="1">Fogões Industriais</option>
+          <option value="2">Refrigeração</option>
+          <option value="3">Preparação</option>
+          <option value="4">Fornos</option>
+          <option value="5">Utensílios</option>
+          <option value="6">Móveis</option>
+          <option value="7">Fogões Industriais</option>
+          <option value="8">Fogões a Gás</option>
+          <option value="9">Cooktops</option>
+          <option value="10">Geladeiras Comerciais</option>
+          <option value="11">Freezers</option>
+          <option value="12">Expositores Refrigerados</option>
         </select>
         {errors.categoria && <span className="text-xs text-red-500">{errors.categoria}</span>}
       </div>

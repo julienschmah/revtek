@@ -5,7 +5,14 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const now = new Date();
     
-    // Criar categorias principais
+    // Check existing categories
+    const existingCategories = await queryInterface.sequelize.query(
+      `SELECT slug FROM categories`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    );
+    
+    const existingSlugs = new Set(existingCategories.map(cat => cat.slug));
+    
     const mainCategories = [
       {
         name: 'Fogões',
@@ -69,23 +76,28 @@ module.exports = {
       },
     ];
 
-    await queryInterface.bulkInsert('categories', mainCategories, {});
+    // Filter out categories that already exist
+    const newMainCategories = mainCategories.filter(cat => !existingSlugs.has(cat.slug));
+    
+    // Only insert if there are new categories
+    if (newMainCategories.length > 0) {
+      await queryInterface.bulkInsert('categories', newMainCategories, {});
+    } else {
+      console.log('All main categories already exist, skipping...');
+    }
 
-    // Agora buscar os IDs das categorias criadas para adicionar subcategorias
+    // Get all categories including newly inserted ones
     const categories = await queryInterface.sequelize.query(
-      `SELECT id, slug FROM categories;`
+      `SELECT id, slug FROM categories;`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
     );
     
-    const categoryRows = categories[0];
     const categoryMap = {};
-    
-    categoryRows.forEach(category => {
+    categories.forEach(category => {
       categoryMap[category.slug] = category.id;
     });
 
-    // Criar subcategorias
     const subcategories = [
-      // Subcategorias de Fogões
       {
         name: 'Fogões Industriais',
         slug: 'fogoes-industriais',
@@ -117,7 +129,6 @@ module.exports = {
         updated_at: now,
       },
       
-      // Subcategorias de Refrigeração
       {
         name: 'Geladeiras Comerciais',
         slug: 'geladeiras-comerciais',
@@ -149,7 +160,6 @@ module.exports = {
         updated_at: now,
       },
       
-      // Subcategorias de Preparação
       {
         name: 'Liquidificadores',
         slug: 'liquidificadores',
@@ -214,10 +224,33 @@ module.exports = {
       },
     ];
 
-    await queryInterface.bulkInsert('categories', subcategories, {});
+    // Filter out subcategories that already exist
+    const newSubcategories = subcategories.filter(cat => !existingSlugs.has(cat.slug));
+    
+    // Skip insertion for parent_id that might be null due to parent category not existing
+    const validSubcategories = newSubcategories.filter(cat => cat.parent_id !== undefined && cat.parent_id !== null);
+    
+    // Only insert if there are new subcategories
+    if (validSubcategories.length > 0) {
+      try {
+        await queryInterface.bulkInsert('categories', validSubcategories, {});
+      } catch (error) {
+        console.error('Error inserting subcategories:', error.message);
+        // Insert one by one to identify problem categories
+        for (const subcategory of validSubcategories) {
+          try {
+            await queryInterface.bulkInsert('categories', [subcategory], {});
+          } catch (subError) {
+            console.error(`Failed to insert subcategory ${subcategory.slug}:`, subError.message);
+          }
+        }
+      }
+    } else {
+      console.log('All subcategories already exist or have invalid parent_ids, skipping...');
+    }
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('categories', null, {});
   }
-}; 
+};

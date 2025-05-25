@@ -132,12 +132,11 @@ export default function ProductsPage() {
     { label: 'Produtos', href: '/produtos' },
   ];
 
-  // Carregar produtos reais da API pública
-  useEffect(() => {
+  // Carregar produtos reais da API pública  useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(undefined);
-    try {
+      try {
         // Montar parâmetros de busca/filtro
         const params: Record<string, string | number> = {};
         if (searchQuery) params.search = searchQuery;
@@ -164,15 +163,39 @@ export default function ProductsPage() {
           params.sortBy = 'rating';
           params.sortOrder = 'DESC';
         }
-        // Chamada à API pública
-        const response = await api.get('/products/public', { params });
-        setProducts(response.data.data || []);      } catch {
+        
+        // Chamada à API
+        const response = await fetch('/api/products?' + new URLSearchParams(params as Record<string, string>));
+        const responseData = await response.json();
+        
+        // Transformar os dados da API para o formato esperado pelo componente
+        const formattedProducts = (responseData.data || []).map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          image: product.images && product.images.length > 0 
+            ? product.images[0] 
+            : 'https://via.placeholder.com/300',
+          price: product.price,
+          oldPrice: product.oldPrice,
+          rating: product.rating || 4,
+          reviewCount: product.reviewCount || 0,
+          brand: product.brand,
+          isNew: product.isNew,
+          freeShipping: true,
+          isFavorite: false
+        }));
+        
+        setProducts(formattedProducts);
+      } catch (err) {
+        console.error('Error fetching products:', err);
         setError('Erro ao carregar produtos. Tente novamente.');
         setProducts([]);
       } finally {
         setLoading(false);
       }
-    };    fetchProducts();
+    };
+    
+    fetchProducts();
   }, [searchQuery, activeFilters, activePriceRanges, currentSort]);
 
   // Gerenciar filtros

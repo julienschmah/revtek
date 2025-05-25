@@ -3,10 +3,12 @@
     "@types/react-input-mask": "^3.0.6",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
+    "sequelize-cli": "^6.6.3",
     "tailwindcss": "^4.1.6"
   },
   "dependencies": {
     "axios-cache-adapter": "^2.7.3",
+    "multer": "^2.0.0",
     "node-cache": "^5.1.2",
     "react-input-mask": "^2.0.4"
   }
