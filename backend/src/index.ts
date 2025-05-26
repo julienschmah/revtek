@@ -34,16 +34,26 @@ app.use(morgan('dev'));
 app.use(performanceMonitor); // Adicionar monitoramento de performance
 app.use(enableCompression); // Configurações de cache
 
-// Servir arquivos estáticos da pasta public
-app.use(express.static('src/public'));
-
-// Configuração do CORS
+// Configuração do CORS (deve vir ANTES do express.static)
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     credentials: true,
+    exposedHeaders: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials']
   })
 );
+
+// Libera CORS para arquivos estáticos (corrigido para todas as rotas de arquivos)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/storage/')) {
+    res.header('Access-Control-Allow-Origin', '*'); // Permite acesso universal para imagens
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  next();
+});
+
+// Servir arquivos estáticos da pasta public
+app.use(express.static('src/public'));
 
 // Limitador de requisições
 const limiter = rateLimit({

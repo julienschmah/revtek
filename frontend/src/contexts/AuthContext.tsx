@@ -238,41 +238,37 @@ export function AuthProvider({ children }: AuthProviderProps) {  const [user, se
 
   // Função de login
   const login = async (email: string, password: string) => {
+    clearAuthCache(); // Limpa o cache ANTES de tentar novo login
     try {
       console.log('AuthContext - Attempting login for email:', email);
       setConnectionError(null);
-      
       // Chamar API de login
       const response = await api.post('/auth/login', { email, password });
       console.log('AuthContext - Login successful, received data:', response.data);
-      
-      // Verificar se a resposta contém token
       if (!response.data || !response.data.token) {
+        setUser(null);
+        setIsAuthenticated(false);
         throw new Error('Resposta inválida do servidor: token não encontrado');
       }
-      
       const token = response.data.token;
-      
-      // Verificar se a resposta contém dados do usuário
       if (response.data.data && response.data.data.user) {
         const userData = response.data.data.user;
-        
-        // Salvar no cache com timestamp atual
         saveAuthToCache(token, userData);
-        console.log('AuthContext - Authentication data saved to cache');
-        
         setUser(userData);
         setIsAuthenticated(true);
-        console.log('AuthContext - User data set and authenticated');
+        // Não faz reload aqui, deixa o componente de login redirecionar
       } else {
+        setUser(null);
+        setIsAuthenticated(false);
         console.error('AuthContext - User data missing from response');
         throw new Error('Dados de usuário ausentes na resposta');
       }
-      
-      return response.data;    } catch (err: unknown) {
+      return response.data;
+    } catch (err: unknown) {
+      setUser(null);
+      setIsAuthenticated(false);
       const error = err as { code?: string; response?: { status?: number }; message?: string };
       console.error('AuthContext - Login error:', error);
-      
       // Verificar se é um erro de conexão
       if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
         console.error('AuthContext - Network error during login:', error.code);
@@ -284,31 +280,36 @@ export function AuthProvider({ children }: AuthProviderProps) {  const [user, se
         console.error('AuthContext - Unknown login error:', error);
         setConnectionError(error.message || 'Ocorreu um erro ao fazer login. Tente novamente mais tarde.');
       }
-      
       throw error;
     }
   };
 
   // Função de registro
   const register = async (name: string, email: string, password: string) => {
+    clearAuthCache(); // Limpa o cache ANTES de tentar novo registro
     try {
       console.log('AuthContext - Attempting to register user:', { name, email });
       setConnectionError(null);
-      // Chamar API de registro
       const response = await api.post('/auth/register', { name, email, password });
       console.log('AuthContext - Registration successful, received data:', response.data);
-      
-      // Salvar token no localStorage
       if (typeof window !== 'undefined' && response.data.token) {
         localStorage.setItem('token', response.data.token);
       }
-      
-      setUser(response.data.data.user);
-      setIsAuthenticated(true);
-      return response.data;    } catch (err: unknown) {
+      if (response.data.data && response.data.data.user) {
+        setUser(response.data.data.user);
+        setIsAuthenticated(true);
+        // Não faz reload aqui, deixa o componente de registro redirecionar
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        throw new Error('Dados de usuário ausentes na resposta');
+      }
+      return response.data;
+    } catch (err: unknown) {
+      setUser(null);
+      setIsAuthenticated(false);
       const error = err as { code?: string; response?: { status?: number }; message?: string };
       console.error('AuthContext - Registration error:', error);
-      
       // Verificar se é um erro de conexão
       if (error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
         console.error('AuthContext - Network error during registration:', error.code);
@@ -320,7 +321,6 @@ export function AuthProvider({ children }: AuthProviderProps) {  const [user, se
         console.error('AuthContext - Unknown registration error:', error);
         setConnectionError('Ocorreu um erro ao fazer o cadastro. Tente novamente mais tarde.');
       }
-      
       throw error;
     }
   };
@@ -358,31 +358,33 @@ export function AuthProvider({ children }: AuthProviderProps) {  const [user, se
   // Função para verificar se o usuário está autenticado usando cache local
   const checkAuthFromCache = (): boolean => {
     if (typeof window === 'undefined') return false;
-    
     const token = localStorage.getItem('token');
     const userDataStr = localStorage.getItem('userData');
     const authTimestamp = localStorage.getItem('authTimestamp');
-    
     // Se não tem token ou dados, não está autenticado
-    if (!token || !userDataStr || !authTimestamp) return false;
-    
+    if (!token || !userDataStr || !authTimestamp) {
+      setUser(null);
+      setIsAuthenticated(false);
+      return false;
+    }
     // Verificar se o token expirou
     if (isTokenExpired(token)) {
       console.log('AuthContext - Cached token is expired');
       clearAuthCache();
+      setUser(null);
+      setIsAuthenticated(false);
       return false;
     }
-    
     // Verificar se passaram-se mais de 3 horas desde a autenticação
     const lastAuthTime = parseInt(authTimestamp, 10);
     const threeHoursMs = 3 * 60 * 60 * 1000;
-    
     if (Date.now() - lastAuthTime > threeHoursMs) {
       console.log('AuthContext - Auth cache is older than 3 hours');
       clearAuthCache();
+      setUser(null);
+      setIsAuthenticated(false);
       return false;
     }
-    
     try {
       // Se chegou aqui, o token é válido e os dados estão em cache
       const userData = JSON.parse(userDataStr);
@@ -392,6 +394,8 @@ export function AuthProvider({ children }: AuthProviderProps) {  const [user, se
     } catch (error) {
       console.error('AuthContext - Error parsing cached user data:', error);
       clearAuthCache();
+      setUser(null);
+      setIsAuthenticated(false);
       return false;
     }
   };
@@ -399,7 +403,6 @@ export function AuthProvider({ children }: AuthProviderProps) {  const [user, se
   // Função para limpar o cache de autenticação
   const clearAuthCache = () => {
     if (typeof window === 'undefined') return;
-    
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     localStorage.removeItem('authTimestamp');
@@ -408,7 +411,6 @@ export function AuthProvider({ children }: AuthProviderProps) {  const [user, se
   // Função para salvar dados de autenticação no cache
   const saveAuthToCache = (token: string, userData: User) => {
     if (typeof window === 'undefined') return;
-    
     localStorage.setItem('token', token);
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('authTimestamp', Date.now().toString());
@@ -437,4 +439,4 @@ export function useAuth() {
     throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
-} 
+}

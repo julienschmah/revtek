@@ -31,7 +31,7 @@ module.exports = {
     // Adicionar índice para busca por email (login)
     await queryInterface.addIndex('users', ['email'], {
       name: 'idx_users_email',
-      unique: true,
+      // unique: true, // Removido para evitar duplicidade de índice UNIQUE
     });
   },
 

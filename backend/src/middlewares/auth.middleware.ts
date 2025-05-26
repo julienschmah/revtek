@@ -23,6 +23,7 @@ export const protect = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log('MIDDLEWARE PROTECT - INICIO', req.method, req.path);
   const startTime = Date.now();
   try {
     const isDebug = process.env.NODE_ENV === 'development';

@@ -52,7 +52,6 @@ const User = sequelize.define<UserInstance>(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         isEmail: {
           msg: 'Email inválido',
@@ -85,13 +84,11 @@ const User = sequelize.define<UserInstance>(
     cpf: {
       type: DataTypes.STRING(14),
       allowNull: true,
-      unique: true,
       field: 'cpf',
     },
     cnpj: {
       type: DataTypes.STRING(18),
       allowNull: true,
-      unique: true,
       field: 'cnpj',
     },
     phone: {
@@ -180,4 +177,4 @@ const User = sequelize.define<UserInstance>(
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export default User; 
+export default User;
