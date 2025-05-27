@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Tab } from '@headlessui/react';
-import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileTabs from './components/ProfileTabs';
 import PersonalInfoPanel from './components/PersonalInfoPanel';
@@ -31,13 +30,8 @@ export default function ProfilePage() {
   if (!user) {
     return null;
   }
-
   return (
-    <ProtectedLayout>
-      <div className="max-w-5xl mx-auto px-4">
-        <ProfileHeader 
-          name={user.name}
-          email={user.email}
+      <div className="max-w-5xl mx-auto px-4">        <ProfileHeader 
           updateSuccess={updateSuccess}
           passwordSuccess={passwordSuccess}
           validationError={validationError}
@@ -76,8 +70,6 @@ export default function ProfilePage() {
               />
             </Tab.Panel>
           </Tab.Panels>
-        </ProfileTabs>
-      </div>
-    </ProtectedLayout>
+        </ProfileTabs>      </div>
   );
 }

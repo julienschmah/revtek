@@ -1,33 +1,21 @@
 'use client';
 
 import React from 'react';
-import { FaUser } from 'react-icons/fa';
 
 interface ProfileHeaderProps {
-  name: string | undefined;
-  email: string | undefined;
   updateSuccess: boolean;
   passwordSuccess: boolean;
   validationError: string;
 }
 
 export default function ProfileHeader({
-  name,
-  email,
   updateSuccess,
   passwordSuccess,
   validationError
-}: ProfileHeaderProps) {
-  return (
+}: ProfileHeaderProps) {return (
     <>
-      <div className="flex items-center space-x-4 mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-white shadow-lg">
-          <FaUser className="text-2xl" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">{name || 'Seu Perfil'}</h1>
-          <p className="text-gray-500">{email}</p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Meu Perfil</h1>
       </div>
 
       {/* Mensagens de sucesso/erro */}

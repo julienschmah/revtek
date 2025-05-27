@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import { FormData, ErrorState } from './components/types';
 import { FaChevronRight, FaChevronLeft, FaCheckCircle, FaCamera, FaDollarSign, FaBoxOpen } from 'react-icons/fa';
 import { IMaskInput } from 'react-imask';
@@ -39,19 +38,15 @@ export default function AnunciarPage() {
   // Verificar se o usuário está logado
   useEffect(() => {
     // Não é necessário verificar nada além do login, que já é feito pelo ProtectedLayout
-  }, [user, router]);
-
-  // Se estiver redirecionando, não renderizar o restante do componente
+  }, [user, router]);  // Se estiver redirecionando, não renderizar o restante do componente
   if (redirecting) {
     return (
-      <ProtectedLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl mb-4">Redirecionando para completar seu cadastro...</h1>
-            <p>Para anunciar produtos, você precisa preencher seus dados de CPF ou CNPJ.</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl mb-4">Redirecionando para completar seu cadastro...</h1>
+          <p>Para anunciar produtos, você precisa preencher seus dados de CPF ou CNPJ.</p>
         </div>
-      </ProtectedLayout>
+      </div>
     );
   }
   
@@ -191,9 +186,8 @@ export default function AnunciarPage() {
       setIsSubmitting(false);
     }
   };
-
   return (
-    <ProtectedLayout>      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden my-4 sm:my-8 p-0 sm:p-0">
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden my-4 sm:my-8 p-0 sm:p-0">
         {/* Cabeçalho visual com ícones de etapas */}
         <StepHeader formStep={formStep} />
 
@@ -388,11 +382,9 @@ export default function AnunciarPage() {
                 >
                   Publicar Anúncio <FaCheckCircle className="inline ml-2" />
                 </button>
-              </div>
-            </div>
+              </div>            </div>
           )}
         </form>
       </div>
-    </ProtectedLayout>
   );
 }

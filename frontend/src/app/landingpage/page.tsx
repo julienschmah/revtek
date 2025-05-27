@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaChevronRight, FaStar, FaShoppingCart, FaHeart, FaTag, FaTruck, FaShieldAlt, FaCreditCard, FaHeadset } from 'react-icons/fa';
@@ -124,13 +123,10 @@ export default function LandingPage() {
         </div>
       </div>
     );
-  }
-
-  return (
-    <ProtectedLayout>
-      <div className="space-y-8">
+  }  return (
+      <div className="container mx-auto px-4 sm:px-6 py-6 md:py-8 space-y-6 md:space-y-8 max-w-7xl">
         {/* Banner principal aprimorado */}
-        <div className="relative w-full h-[450px] rounded-xl overflow-hidden shadow-md">
+        <div className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-md">
           {/* Imagem do banner */}
           <Image
             src="/images/banner.png"
@@ -167,32 +163,27 @@ export default function LandingPage() {
           </div>
         </div>
         
-        {/* Categorias populares */}
-        <div className="bg-white rounded-xl shadow-md p-8 relative overflow-hidden">
+        {/* Categorias populares */}        <div className="bg-white rounded-xl shadow-md p-5 sm:p-6 md:p-8 relative overflow-hidden">
           {/* Efeito de fundo decorativo */}
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-100 rounded-full opacity-30"></div>
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-200 rounded-full opacity-20"></div>
+          <div className="absolute -top-24 -right-24 w-48 h-48 md:w-64 md:h-64 bg-amber-100 rounded-full opacity-30"></div>
+          <div className="absolute -bottom-16 -left-16 w-36 h-36 md:w-48 md:h-48 bg-amber-200 rounded-full opacity-20"></div>
           
-          <div className="relative">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Categorias Populares</h2>
-                <p className="text-gray-500">Encontre os melhores equipamentos por categoria</p>
-              </div>
-              <Link href="/produtos" className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-5 py-2.5 rounded-lg font-medium flex items-center transition-colors border border-amber-200">
+          <div className="relative">            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+              <div className="mb-3 sm:mb-0">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">Categorias Populares</h2>
+                <p className="text-sm sm:text-base text-gray-500">Encontre os melhores equipamentos por categoria</p>
+              </div>              <Link href="/produtos" className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg font-medium flex items-center transition-colors border border-amber-200 text-sm sm:text-base whitespace-nowrap">
                 Ver todas
-                <FaChevronRight className="ml-2" />
+                <FaChevronRight className="ml-2 text-sm" />
               </Link>
             </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
               {categories.map((category) => (
                 <Link 
                   href={`/categoria/${category.slug}`} 
                   key={category.id}
                   className="flex flex-col items-center p-6 bg-white hover:bg-amber-50 rounded-xl transition-all duration-300 border border-gray-100 hover:border-amber-200 group hover:shadow-md relative overflow-hidden"
                 >
-                  {/* Efeito de brilho no hover */}
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-200/0 via-amber-200/30 to-amber-200/0 opacity-0 group-hover:opacity-100 -translate-x-full group-hover:translate-x-full transition-all duration-1000 ease-in-out"></div>
                   
                   <div className="bg-amber-100 text-4xl p-5 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300 relative">
@@ -210,18 +201,16 @@ export default function LandingPage() {
           </div>
         </div>
         
-        {/* Benefícios e vantagens */}
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-md p-8 text-white relative overflow-hidden">
+        {/* Benefícios e vantagens */}        <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-md p-5 sm:p-6 md:p-8 text-white relative overflow-hidden">
           {/* Efeitos decorativos */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
           
           <div className="relative">
-            <h2 className="text-3xl font-bold mb-8 text-center">Por que escolher a RevMak?</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="flex flex-col items-center text-center p-6 bg-white/10 rounded-xl backdrop-blur-sm hover:bg-white/20 transition-colors">
-                <div className="bg-white text-amber-600 p-4 rounded-full mb-4 shadow-lg">
-                  <FaTruck className="w-8 h-8" />
+            <h2 className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center">Por que escolher a RevMak?</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="flex flex-col items-center text-center p-5 bg-white/10 rounded-xl backdrop-blur-sm hover:bg-white/20 transition-colors hover:transform hover:scale-105 duration-300">
+                <div className="bg-white text-amber-600 p-4 rounded-full mb-3 shadow-lg">
+                  <FaTruck className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Entrega Rápida</h3>
                 <p className="text-white/80">Entregamos em todo o Brasil com rapidez e segurança. Frete grátis em compras acima de R$ 2.000.</p>
@@ -251,11 +240,10 @@ export default function LandingPage() {
                 <p className="text-white/80">Equipe técnica especializada para ajudar na escolha e instalação dos equipamentos.</p>
               </div>
             </div>
-            
-            <div className="mt-10 text-center">
+              <div className="mt-8 md:mt-10 text-center">
               <Link 
                 href="/sobre" 
-                className="inline-flex items-center bg-white text-amber-700 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-amber-50 transition-colors shadow-lg hover:shadow-xl"
+                className="inline-flex items-center bg-white text-amber-700 px-6 py-2.5 sm:px-8 sm:py-3 rounded-lg font-semibold text-base sm:text-lg hover:bg-amber-50 transition-colors shadow-lg hover:shadow-xl"
               >
                 Saiba mais sobre nós
                 <FaChevronRight className="ml-2" />
@@ -264,24 +252,20 @@ export default function LandingPage() {
           </div>
         </div>
         
-        {/* Produtos em destaque */}
-        <div className="bg-white rounded-xl shadow-md p-8 relative overflow-hidden">
+        {/* Produtos em destaque */}        <div className="bg-white rounded-xl shadow-md p-5 sm:p-6 md:p-8 relative overflow-hidden">
           {/* Efeito de fundo decorativo */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-full opacity-30 -translate-y-1/2 translate-x-1/3"></div>
+          <div className="absolute top-0 right-0 w-48 h-48 md:w-64 md:h-64 bg-amber-50 rounded-full opacity-30 -translate-y-1/2 translate-x-1/3"></div>
           
-          <div className="relative">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">Produtos em Destaque</h2>
-                <p className="text-gray-500">Os equipamentos mais procurados com os melhores preços</p>
-              </div>
-              <Link href="/produtos" className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-5 py-2.5 rounded-lg font-medium flex items-center transition-colors border border-amber-200">
+          <div className="relative">            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+              <div className="mb-3 sm:mb-0">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">Produtos em Destaque</h2>
+                <p className="text-sm sm:text-base text-gray-500">Os equipamentos mais procurados com os melhores preços</p>
+              </div>              <Link href="/produtos" className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg font-medium flex items-center transition-colors border border-amber-200 text-sm sm:text-base whitespace-nowrap">
                 Ver todos
-                <FaChevronRight className="ml-2" />
+                <FaChevronRight className="ml-2 text-sm" />
               </Link>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
               {featuredProducts.map((product) => (
                 <div key={product.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 group relative">
                   {/* Badge de desconto */}
@@ -321,7 +305,6 @@ export default function LandingPage() {
                   </div>
                   
                   <div className="p-4">
-                    {/* Frete grátis */}
                     <div className="flex justify-between items-center mb-2">
                       {product.freeShipping && (
                         <div className="text-green-600 text-xs font-medium flex items-center">
@@ -339,7 +322,6 @@ export default function LandingPage() {
                       </h3>
                     </Link>
                     
-                    {/* Avaliações */}
                     <div className="flex items-center mb-2">
                       <div className="flex text-amber-400">
                         {[...Array(5)].map((_, i) => (
@@ -354,7 +336,6 @@ export default function LandingPage() {
                       </div>
                     </div>
                     
-                    {/* Preços */}
                     <div className="mb-2">
                       {product.originalPrice > product.price && (
                         <span className="text-xs text-gray-500 line-through">
@@ -369,18 +350,15 @@ export default function LandingPage() {
                       </div>
                     </div>
                     
-                    {/* Botão de compra */}
                     <button className="w-full bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-md flex items-center justify-center font-medium transition-colors mt-3 group-hover:shadow-md">
                       <FaShoppingCart className="mr-2" />
                       Adicionar
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              ))}            </div>
           </div>
         </div>
       </div>
-    </ProtectedLayout>
   );
 }
