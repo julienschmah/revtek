@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" fill="#f8fafc"/>
+  
+  <!-- Geladeira -->
+  <rect x="60" y="40" width="80" height="120" fill="#e2e8f0" rx="8"/>
+  <rect x="65" y="45" width="70" height="110" fill="#f7fafc" rx="4"/>
+  
+  <!-- Porta superior -->
+  <rect x="65" y="45" width="70" height="60" fill="#ffffff" rx="4"/>
+  <line x1="65" y1="105" x2="135" y2="105" stroke="#cbd5e0" stroke-width="2"/>
+  
+  <!-- Porta inferior -->
+  <rect x="65" y="105" width="70" height="50" fill="#ffffff" rx="4"/>
+  
+  <!-- Puxadores -->
+  <rect x="125" y="70" width="3" height="15" fill="#4a5568" rx="1"/>
+  <rect x="125" y="125" width="3" height="15" fill="#4a5568" rx="1"/>
+  
+  <!-- Freezer -->
+  <rect x="70" y="50" width="60" height="25" fill="#e2e8f0" rx="2"/>
+  <rect x="75" y="55" width="50" height="15" fill="#cbd5e0" rx="1"/>
+  
+  <text x="100" y="180" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="12">Refrigeração</text>
+</svg>

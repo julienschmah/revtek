@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" fill="#f8fafc"/>
+  
+  <!-- Panela -->
+  <ellipse cx="100" cy="110" rx="50" ry="30" fill="#4a5568"/>
+  <ellipse cx="100" cy="100" rx="50" ry="30" fill="#2d3748"/>
+  <ellipse cx="100" cy="95" rx="45" ry="25" fill="#1a202c"/>
+  
+  <!-- Tampa -->
+  <ellipse cx="100" cy="85" rx="40" ry="20" fill="#718096"/>
+  <ellipse cx="100" cy="82" rx="35" ry="15" fill="#a0aec0"/>
+  
+  <!-- Puxador da tampa -->
+  <circle cx="100" cy="78" r="4" fill="#4a5568"/>
+  <circle cx="100" cy="78" r="2" fill="#2d3748"/>
+  
+  <!-- Alças -->
+  <path d="M45 100 Q35 95 35 105 Q35 115 45 110" fill="none" stroke="#4a5568" stroke-width="4"/>
+  <path d="M155 100 Q165 95 165 105 Q165 115 155 110" fill="none" stroke="#4a5568" stroke-width="4"/>
+  
+  <text x="100" y="160" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="12">Panelas</text>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" fill="#f8fafc"/>
+  
+  <!-- Fritadeira -->
+  <rect x="50" y="60" width="100" height="80" fill="#4a5568" rx="8"/>
+  <rect x="55" y="65" width="90" height="70" fill="#2d3748" rx="4"/>
+  
+  <!-- Cuba da fritadeira -->
+  <rect x="60" y="70" width="80" height="50" fill="#1a202c" rx="4"/>
+  <rect x="65" y="75" width="70" height="40" fill="#2d3748" rx="2"/>
+  
+  <!-- Óleo -->
+  <rect x="70" y="80" width="60" height="25" fill="#f6ad55" rx="2"/>
+  
+  <!-- Cesta -->
+  <rect x="75" y="85" width="50" height="15" fill="none" stroke="#a0aec0" stroke-width="2" rx="2"/>
+  <line x1="80" y1="85" x2="120" y2="85" stroke="#a0aec0" stroke-width="1"/>
+  <line x1="80" y1="90" x2="120" y2="90" stroke="#a0aec0" stroke-width="1"/>
+  <line x1="80" y1="95" x2="120" y2="95" stroke="#a0aec0" stroke-width="1"/>
+  
+  <!-- Controles -->
+  <circle cx="80" cy="125" r="4" fill="#e2e8f0"/>
+  <circle cx="120" cy="125" r="4" fill="#e2e8f0"/>
+  
+  <text x="100" y="165" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="12">Fritadeiras</text>
+</svg>

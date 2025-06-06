@@ -1,7 +1,17 @@
 {
+  "name": "revmak",
+  "version": "1.0.0",
+  "description": "Plataforma RevMak",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
   "devDependencies": {
     "@types/react-input-mask": "^3.0.6",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
     "postcss": "^8.5.3",
     "sequelize-cli": "^6.6.3",
     "tailwindcss": "^4.1.6"

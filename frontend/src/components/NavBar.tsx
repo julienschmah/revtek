@@ -15,7 +15,6 @@ const NavBar: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Buscando por:', searchQuery);
-    // Implementar busca
   };
 
   const toggleUserMenu = () => {
@@ -24,7 +23,6 @@ const NavBar: React.FC = () => {
   
   const handleLogout = () => {
     logout();
-    // A função logout no AuthContext já redireciona para a página de login
   };
 
   return (
@@ -120,8 +118,10 @@ const NavBar: React.FC = () => {
               <FaMapMarkerAlt className="mr-1" />
               Enviar para São Paulo - SP
             </div>
-            
-            <div className="flex space-x-6">
+              <div className="flex space-x-6">
+              <Link href="/ListProduts" className="text-white hover:text-amber-300">
+                Produtos
+              </Link>
               <Link href="/categorias" className="text-white hover:text-amber-300">
                 Categorias
               </Link>

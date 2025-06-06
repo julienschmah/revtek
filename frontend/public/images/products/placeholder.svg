@@ -1,0 +1,6 @@
+&lt;svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"&gt;
+  &lt;rect width="800" height="600" fill="#f3f4f6" /&gt;
+  &lt;path d="M400 150 L500 300 L400 450 L300 300 Z" fill="#d1d5db" /&gt;
+  &lt;text x="400" y="280" font-family="Arial" font-size="24" text-anchor="middle" fill="#9ca3af"&gt;RevMak&lt;/text&gt;
+  &lt;text x="400" y="320" font-family="Arial" font-size="14" text-anchor="middle" fill="#9ca3af"&gt;Imagem não disponível&lt;/text&gt;
+&lt;/svg&gt;

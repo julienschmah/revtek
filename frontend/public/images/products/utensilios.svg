@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" fill="#f8fafc"/>
+  
+  <!-- Utensílios -->
+  
+  <!-- Colher -->
+  <ellipse cx="70" cy="70" rx="8" ry="12" fill="#a0aec0"/>
+  <rect x="67" y="82" width="6" height="40" fill="#4a5568" rx="2"/>
+  
+  <!-- Garfo -->
+  <rect x="85" y="60" width="4" height="12" fill="#a0aec0"/>
+  <rect x="88" y="60" width="4" height="12" fill="#a0aec0"/>
+  <rect x="91" y="60" width="4" height="12" fill="#a0aec0"/>
+  <rect x="87" y="72" width="6" height="40" fill="#4a5568" rx="2"/>
+  
+  <!-- Faca -->
+  <path d="M110 60 L125 60 L125 75 L110 85 Z" fill="#a0aec0"/>
+  <rect x="112" y="85" width="6" height="35" fill="#4a5568" rx="2"/>
+  
+  <!-- Espátula -->
+  <rect x="130" y="60" width="15" height="8" fill="#a0aec0" rx="2"/>
+  <rect x="135" y="68" width="4" height="40" fill="#4a5568" rx="1"/>
+  
+  <!-- Concha -->
+  <circle cx="85" cy="140" r="12" fill="#a0aec0"/>
+  <rect x="82" y="125" width="4" height="20" fill="#4a5568" rx="1"/>
+  
+  <text x="100" y="180" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="12">Utensílios</text>
+</svg>

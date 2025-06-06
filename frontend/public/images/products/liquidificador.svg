@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <rect width="200" height="200" fill="#f8fafc"/>
+  
+  <!-- Liquidificador base -->
+  <rect x="70" y="120" width="60" height="40" fill="#4a5568" rx="8"/>
+  
+  <!-- Corpo do motor -->
+  <rect x="75" y="100" width="50" height="30" fill="#2d3748" rx="4"/>
+  
+  <!-- Jarra -->
+  <polygon points="85,100 115,100 120,60 80,60" fill="#e2e8f0"/>
+  <polygon points="82,95 118,95 117,100 83,100" fill="#cbd5e0"/>
+  
+  <!-- Tampa -->
+  <ellipse cx="100" cy="60" rx="20" ry="5" fill="#a0aec0"/>
+  
+  <!-- Botões -->
+  <circle cx="85" cy="135" r="3" fill="#e2e8f0"/>
+  <circle cx="100" cy="135" r="3" fill="#e2e8f0"/>
+  <circle cx="115" cy="135" r="3" fill="#e2e8f0"/>
+  
+  <!-- Velocidades -->
+  <text x="85" y="150" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="8">1</text>
+  <text x="100" y="150" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="8">2</text>
+  <text x="115" y="150" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="8">3</text>
+  
+  <text x="100" y="180" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="12">Liquidificadores</text>
+</svg>

@@ -1,25 +1,32 @@
 # Projeto Revmak
 
-Este é um projeto full-stack com React, Node.js e MongoDB, preparado para desenvolvimento mobile com React Native.
+Este é um projeto full-stack com React (Next.js), Node.js e PostgreSQL.
 
 ## Estrutura do Projeto
 
 O projeto está dividido em duas partes principais:
 
 - **Frontend**: Aplicação React com Next.js
-- **Backend**: API RESTful com Node.js, Express e MongoDB
-- **Mobile**: (Futuro) Aplicação React Native
+- **Backend**: API RESTful com Node.js, Express e PostgreSQL
 
 ## Requisitos
 
 - Node.js (v18 ou superior)
 - npm ou yarn
-- MongoDB (local ou remoto)
+- PostgreSQL (local ou remoto)
 - Docker e Docker Compose (opcional)
 
 ## Configuração e Execução
 
-### Sem Docker
+### Instalação de Dependências
+
+Para instalar todas as dependências do projeto (frontend e backend):
+
+```bash
+npm run install:all
+```
+
+### Configuração de Ambiente
 
 #### Backend
 
@@ -27,21 +34,13 @@ O projeto está dividido em duas partes principais:
 # Entrar na pasta do backend
 cd backend
 
-# Instalar dependências
-npm install
-
 # Criar arquivo .env
 cp .env.example .env
 # Edite o arquivo .env com suas configurações
 
-# Executar em desenvolvimento
-npm run dev
-
-# Construir para produção
-npm run build
-
-# Executar em produção
-npm start
+# Executar migrações e seeds do banco de dados
+npm run db:migrate
+npm run db:seed
 ```
 
 #### Frontend
@@ -49,6 +48,11 @@ npm start
 ```bash
 # Entrar na pasta do frontend
 cd frontend
+
+# Criar arquivo .env.local
+cp .env.example .env.local
+# Edite o arquivo .env.local com suas configurações
+```
 
 # Instalar dependências
 npm install
